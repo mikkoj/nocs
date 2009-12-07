@@ -60,6 +60,22 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Google.GData.AccessControl, Version=1.4.0.2, Culture=neutral, PublicKeyToken=b4b8eb9a7afc8328, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Dependencies\Google.GData.AccessControl.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.GData.Client, Version=1.4.0.2, Culture=neutral, PublicKeyToken=04a59ca9b0273830, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Dependencies\Google.GData.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.GData.Documents, Version=1.4.0.2, Culture=neutral, PublicKeyToken=099e9a853da5b089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Dependencies\Google.GData.Documents.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.GData.Extensions, Version=1.4.0.2, Culture=neutral, PublicKeyToken=0b4c5df2ebf20876, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Dependencies\Google.GData.Extensions.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core">
@@ -254,24 +270,6 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="GData\clients\cs\src\core\Core Client.csproj">
-      <Project>{B6F6D938-0D45-42BA-8A67-55D92EF03995}</Project>
-      <Name>Core Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="GData\clients\cs\src\documents3\Documents3.csproj">
-      <Project>{4E97E7C2-D30C-48ED-9C3D-FFA2127099AA}</Project>
-      <Name>Documents3</Name>
-    </ProjectReference>
-    <ProjectReference Include="GData\clients\cs\src\extensions\Common Data Extensions.csproj">
-      <Project>{21BCB644-F9C3-4ADC-8BE1-4E55C6565011}</Project>
-      <Name>Common Data Extensions</Name>
-    </ProjectReference>
-    <ProjectReference Include="GData\clients\cs\src\gacl\Access Control.csproj">
-      <Project>{279D35CE-871A-4C76-B823-A73675EDF191}</Project>
-      <Name>Access Control</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
