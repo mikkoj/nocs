@@ -44,19 +44,32 @@ namespace Nocs.Forms
         private void btnOK_Click(object sender, EventArgs e)
         {
             Response.DocumentName = txtInput.Text.Trim();
-            if (!Response.CreateDefaultFolder)
+            
+            // let's check if a document with the given name already exists
+            if (NocsService.AllDocuments.Values.Any(d => d.Title == Response.DocumentName))
             {
-                var documentId = ((Document)cmbSaveFolder.SelectedItem).ResourceId;
-                if (!string.IsNullOrEmpty(documentId))
-                {
-                    Response.Folder = ((Document)cmbSaveFolder.SelectedItem).ResourceId;
-                }
-                else
-                {
-                    Response.Folder = string.Empty;
-                }
+                DialogResult = DialogResult.None;
+                MessageBox.Show(this, "A document with the given name already exists, please choose another name.",
+                                      "Document already exists", MessageBoxButtons.OK);
             }
-            Close();
+            else
+            {
+                if (!Response.CreateDefaultFolder)
+                {
+                    var documentId = ((Document)cmbSaveFolder.SelectedItem).ResourceId;
+                    if (!string.IsNullOrEmpty(documentId))
+                    {
+                        Response.Folder = ((Document)cmbSaveFolder.SelectedItem).ResourceId;
+                    }
+                    else
+                    {
+                        Response.Folder = string.Empty;
+                    }
+                }
+
+                DialogResult = DialogResult.OK;
+                Close();
+            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)

@@ -40,11 +40,16 @@ namespace Nocs.Forms
         public Browse()
         {
             InitializeComponent();
+            // activates double buffering
+            SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer, true);
         }
 
         public Browse(ref Synchronizer synchronizer)
         {
             InitializeComponent();
+            // activates double buffering
+            SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer, true);
+
             _synchronizer = synchronizer;
             _synchronizer.AutoFetchAllEntriesFinished += SynchronizerAutoFetchAllEntriesFinished;
         }
@@ -52,6 +57,9 @@ namespace Nocs.Forms
         public Browse(ref Synchronizer synchronizer, string selectedResourceId)
         {
             InitializeComponent();
+            // activates double buffering
+            SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer, true);
+
             _synchronizer = synchronizer;
             _synchronizer.AutoFetchAllEntriesFinished += SynchronizerAutoFetchAllEntriesFinished;
             _activeResourceId = selectedResourceId;
@@ -436,6 +444,8 @@ namespace Nocs.Forms
         /// </summary>
         private void RefreshItems(string folderId, bool autoFetchAllCalling)
         {
+            treeFolders.SuspendLayout();
+            // let's clear and update the TreeView
             if (treeFolders.Nodes.Count > 0)
             {
                 treeFolders.Nodes.Clear();
@@ -472,7 +482,7 @@ namespace Nocs.Forms
                 // no folders for this user with given folderId found, let's reset the folderId to avoid problems
                 folderId = null;
             }
-            
+
             // let's select the TreeNode with the given folderId
             treeFolders.AfterSelect -= treeFolders_AfterSelect;
             if (!string.IsNullOrEmpty(folderId))
@@ -485,6 +495,7 @@ namespace Nocs.Forms
                 treeFolders.SelectedNode = treeFolders.Nodes[0];
             }
             treeFolders.AfterSelect += treeFolders_AfterSelect;
+            treeFolders.PerformLayout();
 
             // --------------------------------------------------------------------------------------------------
 
@@ -527,6 +538,9 @@ namespace Nocs.Forms
             {
                 ((CurrencyManager)lstItems.BindingContext[lstItems.DataSource]).Refresh();
             }
+
+            // let's make sure double buffering is on to limit flickering
+            DoubleBuffered = true;
         }
 
         private void DisableActions()

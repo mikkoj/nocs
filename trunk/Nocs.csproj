@@ -131,6 +131,7 @@
     </Compile>
     <Compile Include="Helpers\DiffMatchPatch.cs" />
     <Compile Include="Models\DocumentSortOrder.cs" />
+    <Compile Include="Models\KnownIssuesResult.cs" />
     <Compile Include="Models\Noc.Events.cs">
       <SubType>Component</SubType>
     </Compile>

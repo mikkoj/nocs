@@ -363,6 +363,11 @@ namespace Nocs.Forms
         private void AutoFetchAllEntriesFinished(SyncResult result)
         {
             // we'll have to check if any of the open tabs were deleted
+            RemoveTabsNotFoundInAllDocuments();
+        }
+
+        private void RemoveTabsNotFoundInAllDocuments()
+        {
             for (var i = 0; i < tabs.TabCount; i++)
             {
                 var tab = tabs.TabPages[i] as Noc;
@@ -371,13 +376,13 @@ namespace Nocs.Forms
                     // tab document isn't a draft (untitled)
                     // AND we couldn't find the documentId in AllDocuments after a background-"GetAllItems"
                     // -> we have to remove the document from tabs completely (in a thread-safe way)
-                    Debug.WriteLine(DateTime.Now + " - Main: removing an open tab of a document that was removed in Google Docs (AutoFetchAll): " + tab.Document.Title);
+                    Debug.WriteLine(DateTime.Now + " - Main: removing an open tab of a document that was removed in Google Docs: " + tab.Document.Title);
                     MainFormThreadSafeDelegate removeTab = RemoveTabThreadSafe;
                     Invoke(removeTab, i);
                 }
             }
         }
-
+        
         private void RemoveTabThreadSafe(object value)
         {
             int tabIndex;

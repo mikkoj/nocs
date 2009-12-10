@@ -11,6 +11,7 @@ using Google.Documents;
 
 using Nocs.Helpers;
 using Nocs.Properties;
+using Nocs.Models;
 
 
 namespace Nocs
@@ -36,6 +37,17 @@ namespace Nocs
         public static Dictionary<string, Document> AllDocuments { get; private set; }
         public static Dictionary<string, Document> AllFolders { get; private set; }
         private static Feed<Document> AllEntriesFeed { get; set; }
+
+        // locks and counters for handling known GData-server issues
+        private static readonly object GetContentLock = new object();
+        private static int _getContentAttempts;
+
+        private static readonly object RenameEntryLock = new object();
+        private static int _renameEntryAttempts;
+
+        private static readonly object DeleteEntryLock = new object();
+        private static int _deleteEntryAttempts;
+
 
         /// <summary>
         /// Fetches/updates all DocumentEntries in a Dictionary and wraps them in a Noc class.
@@ -63,7 +75,7 @@ namespace Nocs
             {
                 var request = new DocumentsRequest(_settings)
                 {
-                    Service = { ProtocolMajor = 3 },
+                    Service = { ProtocolMajor = 3 }
                     //BaseUri = DocumentsListQuery.documentsAclUri
                 };
                 var reqFactory = (GDataRequestFactory)request.Service.RequestFactory;
@@ -91,7 +103,8 @@ namespace Nocs
             }
             catch (GDataNotModifiedException)
             {
-                // entries haven't changed, no need to do anything
+                // since doclist updates timestamps on feeds based on access,
+                // etags are useless here and we shouldn't get here
                 return;
             }
             catch (GDataRequestException exRequest)
@@ -160,7 +173,7 @@ namespace Nocs
                 
                 // we might be creating this document inside a particular folder
                 var postUri = !string.IsNullOrEmpty(folderId) ?
-                                new Uri(string.Format(DocumentsListQuery.foldersUriTemplate, folderId))
+                                new Uri(string.Format(DocumentsListQuery.foldersUriTemplate,folderId))
                               : new Uri(DocumentsListQuery.documentsBaseUri);
 
                 newEntry = _documentService.Insert(postUri, textStream, DocumentContentType, title) as DocumentEntry;
@@ -181,11 +194,9 @@ namespace Nocs
                     Debug.WriteLine(string.Format("Couldn't convert document while creating a document: {0}", title));
                     return null;
                 }
-                else
-                {
-                    Trace.WriteLine(string.Format("{0} - Couldn't create a new document: {1} - {2}", DateTime.Now, title, error));
-                    throw new GDataRequestException(string.Format("Couldn't create a new document: {0} - {1}", title, Tools.TrimErrorMessage(error)));
-                }
+                
+                Trace.WriteLine(string.Format("{0} - Couldn't create a new document: {1} - {2}", DateTime.Now, title, error));
+                throw new GDataRequestException(string.Format("Couldn't create a new document: {0} - {1}", title, Tools.TrimErrorMessage(error)));
             }
             catch (Exception ex)
             {
@@ -220,17 +231,15 @@ namespace Nocs
         /// Creates a new folder in Google Docs.
         /// </summary>
         /// <param name="folderName">Name for the new folder.</param>
-        public static Document CreateNewFolder(string folderName)
+        public static void CreateNewFolder(string folderName)
         {
-            Document newFolder;
-
             try
             {
                 var request = new DocumentsRequest(_settings);
                 var reqFactory = (GDataRequestFactory)request.Service.RequestFactory;
                 reqFactory.Proxy = GetProxy();
 
-                newFolder = new Document
+                var newFolder = new Document
                 {
                     Type = Document.DocumentType.Folder,
                     Title = folderName
@@ -241,11 +250,6 @@ namespace Nocs
                 if (newFolder != null)
                 {
                     AllFolders.Add(newFolder.ResourceId, newFolder);
-                    return newFolder;
-                }
-                else
-                {
-                    return null;
                 }
             }
             catch (GDataRequestException exRequest)
@@ -326,8 +330,16 @@ namespace Nocs
             if (refreshed != null && refreshed.ETag != originalEtag)
             {
                 Debug.WriteLine(string.Format("Found updated document: {0} - {1} -> {2}", refreshed.Title, originalEtag, refreshed.ETag));
+
                 // let's update our internal dictionary
-                AllDocuments[document.ResourceId] = refreshed;
+                if (refreshed.Type == Document.DocumentType.Folder)
+                {
+                    AllFolders[document.ResourceId] = refreshed;
+                }
+                else
+                {
+                    AllDocuments[document.ResourceId] = refreshed;
+                }
                 return refreshed;
             }
 
@@ -366,6 +378,20 @@ namespace Nocs
                 {
                     throw new GDataRequestException("Couldn't download content - internet down?");
                 }
+
+                var knownIssues = ConsecutiveKnownIssuesOccurred(GetContentLock, "GetDocumentContent", doc, error, ref _getContentAttempts, 1);
+                if (knownIssues == KnownIssuesResult.Retry)
+                {
+                    doc = GetDocumentContent(doc);
+                    doc.Summary = null;
+                    _getContentAttempts = 0;
+                    return doc;
+                }
+                if (knownIssues == KnownIssuesResult.LimitReached)
+                {
+                    return doc;
+                }
+
 
                 Trace.WriteLine(DateTime.Now + " - NocsService - couldn't download content: " + error);
                 throw new GDataRequestException(string.Format("Couldn't download document: {0} - {1}", doc.DocumentEntry.Title.Text, Tools.TrimErrorMessage(error)));
@@ -521,6 +547,20 @@ namespace Nocs
                         throw new GDataRequestException("Couldn't rename entry, connection timed out");
                     }
 
+                    var knownIssues = ConsecutiveKnownIssuesOccurred(RenameEntryLock, "RenameEntry", doc, error, ref _renameEntryAttempts, 1);
+                    if (knownIssues == KnownIssuesResult.Retry)
+                    {
+                        doc = GetUpdatedDocument(doc);
+                        RenameEntry(doc.ResourceId, newTitle, doc.Type);
+                        doc.Summary = null;
+                        _renameEntryAttempts = 0;
+                        return;
+                    }
+                    else if (knownIssues == KnownIssuesResult.LimitReached)
+                    {
+                        return;
+                    }
+
                     Trace.WriteLine(string.Format("Couldn't rename {0}: {1} - {2}", entryType, doc.DocumentEntry.Title.Text, Tools.TrimErrorMessage(error)));
                     throw new GDataRequestException(string.Format("Couldn't rename {0}: {1} - {2}", entryType, doc.DocumentEntry.Title.Text, Tools.TrimErrorMessage(error)));
                 }
@@ -578,15 +618,41 @@ namespace Nocs
             }
             catch (GDataRequestException exRequest)
             {
-                var error = GetErrorMessage(exRequest);
-                if (exRequest.ResponseString == null && error.ToLowerInvariant().Contains("execution of request failed"))
+                var response = exRequest.Response as HttpWebResponse;
+                if (response != null && response.StatusCode == HttpStatusCode.PreconditionFailed &&
+                    exRequest.ResponseString.ToLowerInvariant().Contains("etagsmismatch"))
                 {
-                    throw new GDataRequestException("Couldn't delete entry, connection timed out");
+                    // ETags don't match -> this document has been updated outside this instance of Nocs
+                    // or it was just saved -> let's update it and try renaming again
+                    Debug.WriteLine(string.Format("ETags don't match, couldn't find {0} - updating it and trying delete again..", doc.ETag));
+                    doc = GetUpdatedDocument(doc);
+                    DeleteEntry(doc.ResourceId, doc.Type);
                 }
+                else
+                {
+                    var error = GetErrorMessage(exRequest);
+                    if (exRequest.ResponseString == null && error.ToLowerInvariant().Contains("execution of request failed"))
+                    {
+                        throw new GDataRequestException("Couldn't delete entry, connection timed out");
+                    }
 
-                Trace.WriteLine(DateTime.Now + " - NocsService - couldn't delete document: " + doc.DocumentEntry.Title.Text + " - " + error);
-                throw new GDataRequestException(string.Format("Couldn't delete document: {0} - {1}",
-                    doc.DocumentEntry.Title.Text, Tools.TrimErrorMessage(error)));
+                    var knownIssues = ConsecutiveKnownIssuesOccurred(DeleteEntryLock, "DeleteEntry", doc, error, ref _deleteEntryAttempts, 1);
+                    if (knownIssues == KnownIssuesResult.Retry)
+                    {
+                        doc = GetUpdatedDocument(doc);
+                        DeleteEntry(doc.ResourceId, doc.Type);
+                        doc.Summary = null;
+                        _deleteEntryAttempts = 0;
+                        return;
+                    }
+                    else if (knownIssues == KnownIssuesResult.LimitReached)
+                    {
+                        return;
+                    }
+
+                    Trace.WriteLine(string.Format("Couldn't delete {0}: {1} - {2}", entryType, doc.DocumentEntry.Title.Text, Tools.TrimErrorMessage(error)));
+                    throw new GDataRequestException(string.Format("Couldn't delete {0}: {1} - {2}", entryType, doc.DocumentEntry.Title.Text, Tools.TrimErrorMessage(error)));
+                }
             }
             catch (Exception ex)
             {
@@ -832,6 +898,63 @@ namespace Nocs
 
 
         /// <summary>
+        /// Will check for known GData server issues - they happen occasionally.
+        /// Normally we shouldn't get here, but if we do, we'll retry whatever action we were
+        /// attempting once again, after which we'll just tag the document summary and return it,
+        /// so it will be caught in Main.Workers and its tab will simply be removed.
+        /// </summary>
+        /// <param name="knownIssueLock">An object representing the lock to be used.</param>
+        /// <param name="source">Method source for debugging purposes.</param>
+        /// <param name="doc">Document which summary will be updated based on potential errors.</param>
+        /// <param name="error">Error that occurred.</param>
+        /// <param name="attemptCount">Reference to the integer representing the current count for this calling type.</param>
+        /// <param name="retryLimit">Maximum number of retries.</param>
+        /// <returns>
+        /// true, if known issues found in given error for given no. of consecutive times (retryLimit)
+        /// 
+        /// false, if no known issues found or if known issues found for the nth time (retryLimit)
+        /// </returns>
+        private static KnownIssuesResult ConsecutiveKnownIssuesOccurred(object knownIssueLock, string source, Document doc, string error, ref int attemptCount, int retryLimit)
+        {
+            lock (knownIssueLock)
+            {
+                var knownIssueOccurred = false;
+
+                if (error.ToLowerInvariant().Contains("not found"))
+                {
+                    Debug.WriteLine(source + ": document not found: " + doc.Title);
+                    doc.Summary = "document not found";
+                    knownIssueOccurred = true;
+                }
+
+                if (error.ToLowerInvariant().Contains("file is corrupt, or an unknown format"))
+                {
+                    Debug.WriteLine(source + ": file is corrupt, or an unknown format: " + doc.Title);
+                    doc.Summary = "file is corrupt, or an unknown format";
+                    knownIssueOccurred = true;
+                }
+
+                if (knownIssueOccurred && attemptCount < retryLimit)
+                {
+                    Debug.WriteLine(source + ": retrying retrieving document content");
+                    attemptCount++;
+                    return KnownIssuesResult.Retry;
+                }
+                
+                if (knownIssueOccurred && attemptCount >= retryLimit)
+                {
+                    Debug.WriteLine(source + ": known issues found but retryLimit (" + retryLimit + ") reached");
+                    attemptCount = 0;
+                    return KnownIssuesResult.LimitReached;
+                }
+                
+                attemptCount = 0;
+                return KnownIssuesResult.NoneFound;
+            }
+        }
+
+
+        /// <summary>
         /// Will clear the headers before any given request against GData API, and insert potential ETag's.
         /// Will also setup the proxy and services if they aren't initialized yet.
         /// </summary>
@@ -925,6 +1048,5 @@ namespace Nocs
         {
             return !string.IsNullOrEmpty(Username) && !string.IsNullOrEmpty(Password);
         }
-
     }
 }
