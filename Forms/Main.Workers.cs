@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using Google.Documents;
 
 using Nocs.Helpers;
@@ -43,7 +44,7 @@ namespace Nocs.Forms
             else
             {
                 // next, retrieve items
-                Status(StatusType.Retrieve, "Retrieving documentlist..");
+                Status(StatusType.Retrieve, "Retrieving document list..");
                 BgWorkerGetAllItems.RunWorkerAsync();
             }
         }
@@ -105,22 +106,49 @@ namespace Nocs.Forms
             {
                 if (updatedDocument == null)
                 {
-                    Trace.WriteLine(DateTime.Now + " - Main: error while loading a new  document");
+                    Trace.WriteLine(DateTime.Now + " - Main: error while loading document content");
                 }
                 else
                 {
-                    Trace.WriteLine(DateTime.Now + " - Main: error while loading a new document: " + updatedDocument.Title);
+                    Trace.WriteLine(DateTime.Now + " - Main: error while loading document content: " + updatedDocument.Title);
                 }
 
                 Status(StatusType.ContentUpdateError, e.Error.Message);
                 return;
             }
+
             if (updatedDocument != null)
             {
-                // let's activate the document and update the content
-                foreach (Noc tab in tabs.TabPages)
+                // if for some reason the document wasn't found or file was corrupt, we'll remove that tab
+                /*
+                   TODO: later these errors should create a small box inside the gray, inactive Tab,
+                          where we will inform the user to either reload the document or save it inside docs.google.com
+                */
+                if (updatedDocument.Summary != null &&
+                    (updatedDocument.Summary.ToLowerInvariant().Contains("document not found") ||
+                     updatedDocument.Summary.ToLowerInvariant().Contains("file is corrupt, or an unknown format")))
                 {
-                    if (!tab.Document.IsDraft && tab.Document.ResourceId == updatedDocument.ResourceId)
+                    for (var i = 0; i < tabs.TabCount; i++)
+                    {
+                        var tab = tabs.TabPages[i] as Noc;
+                        if (tab != null && !tab.Document.IsDraft && tab.Document.ResourceId == updatedDocument.ResourceId)
+                        {
+                            // tab document isn't a draft (untitled)
+                            // AND we couldn't find the documentId in AllDocuments after a background-"GetAllItems"
+                            // -> we have to remove the document from tabs completely (in a thread-safe way)
+                            Debug.WriteLine(DateTime.Now + " - Main: removing an open tab of a document that wasn't found while loading document content: " + tab.Document.Title);
+                            MainFormThreadSafeDelegate removeTab = RemoveTabThreadSafe;
+                            Invoke(removeTab, i);
+                        }
+                    }
+                    updatedDocument.Summary = null;
+                }
+                else
+                {
+                    // let's activate the document and update the content
+                    foreach (var tab in tabs.TabPages.Cast<Noc>().Where(
+                                 tab => !tab.Document.IsDraft &&
+                                 tab.Document.ResourceId == updatedDocument.ResourceId))
                     {
                         tab.Document = updatedDocument;
                         tab.Activate();

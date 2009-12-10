@@ -273,7 +273,7 @@ namespace Nocs.Models
                 var filePaths = (string[])(e.Data.GetData(DataFormats.FileDrop));
                 foreach (var fileLoc in filePaths)
                 {
-                    if (File.Exists(fileLoc))
+                    if (File.Exists(fileLoc) && fileLoc.Substring(fileLoc.Length - 3, 3) == "txt")
                     {
                         // let's read the contents and append it to the textbox
                         using (TextReader tr = new StreamReader(fileLoc, Encoding.UTF8))

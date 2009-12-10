@@ -272,6 +272,7 @@ namespace Nocs.Models
 
             // we need to preserve the original content to avoid problems when changing txtEditor-content while saving
             var documentContentWhenStartedSaving = Document.Content;
+            var currentDocument = Document;
 
             // let's see if we have to create a new Document:
             // - if Document is a draft it hasn't been saved yet
@@ -289,6 +290,10 @@ namespace Nocs.Models
             {
                 Document.Content = documentContentWhenStartedSaving;
                 e.Result = Document;
+            }
+            else
+            {
+                Document = currentDocument;
             }
         }
 
@@ -381,6 +386,13 @@ namespace Nocs.Models
                 if (!InvokeRequired)
                 {
                     Status(StatusType.Reset, null);
+                }
+
+                // newDoc is null when there's a problem with saving or creating a new document.
+                // usually it's when creating a new document and gdata api couldn't convert the document
+                if (newDoc == null)
+                {
+                    return;
                 }
 
                 // let's resume the synchronizer

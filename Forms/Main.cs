@@ -223,7 +223,12 @@ namespace Nocs.Forms
 
         private void menuLoadFile_Click(object sender, EventArgs e)
         {
-            var openFileDialog = new OpenFileDialog();
+            var openFileDialog = new OpenFileDialog
+            {
+                DefaultExt = "txt",
+                Filter = "Text files (*.txt)|*.txt"
+            };
+
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 // we'll use a StringBuilder to collect all text data from the dropped document(s)
@@ -279,7 +284,8 @@ namespace Nocs.Forms
                 var saveFileDialog = new SaveFileDialog
                 {
                     DefaultExt = "txt",
-                    Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*"
+                    Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
+                    AddExtension = true
                 };
 
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
