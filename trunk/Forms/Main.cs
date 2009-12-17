@@ -484,6 +484,22 @@ namespace Nocs.Forms
 
         private void menuPreferences_Click(object sender, EventArgs e)
         {
+            // make sure we are authenticated
+            if (!NocsService.UserIsAuthenticated())
+            {
+                // user's not authenticated, let's ask for credentials to retrieve items
+                var login = new Login();
+                if (login.ShowDialog() == DialogResult.OK)
+                {
+                    Status(StatusType.Retrieve, "Retrieving items...");
+                    menuGoogleAccount.Enabled = false;
+                    menuBrowse.Enabled = false;
+                    menuSave.Enabled = false;
+                    BgWorkerGetAllItems.RunWorkerAsync();
+                }
+                return;
+            }
+
             var nocsPreferences = new Preferences();
             if (nocsPreferences.ShowDialog() == DialogResult.OK)
             {

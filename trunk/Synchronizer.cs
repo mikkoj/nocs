@@ -30,7 +30,7 @@ namespace Nocs
 
         public void InitializeSynchronizer()
         {
-            // we'll use 130sec intervals for checks
+            // we'll use 10sec intervals for checks
             _jobTimer = new Timer { Interval = 10000 };
             _jobTimer.Elapsed += JobTimer_Elapsed;
 
@@ -133,6 +133,12 @@ namespace Nocs
 
         private static void BgWorkerDoWork(object sender, DoWorkEventArgs e)
         {
+            if (e.Argument == null)
+            {
+                Debug.WriteLine("Synchronizer: BgWorkerDoWork - given syncjob (e.Argument) is null");
+                return;
+            }
+
             SyncResult result = null;
             var job = (SyncJob)e.Argument;
 
