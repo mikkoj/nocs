@@ -17,7 +17,7 @@ namespace Nocs
         /// </summary>
         [STAThread]
         [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.ControlAppDomain)]
-        static void Main()
+        static void Main(string[] args)
         {
             // let's make sure we have Output window added as a listener for debug modes
             #if DEBUG
@@ -35,7 +35,7 @@ namespace Nocs
             // add the event handler for handling non-UI thread exceptions to the event. 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainUnhandledException;
 
-            Application.Run(new Main());
+            Application.Run(new Main(args));
         }
 
 

@@ -24,7 +24,16 @@ namespace Nocs.Forms
             {
                 Location = Settings.Default.WindowLocation;
             }
+
+            if (Location.X < 0 || Location.Y < 0)
+            {
+                Trace.WriteLine(string.Format("{0} - Location out of bounds: X: {1} - Y: {2}",
+                                              DateTime.Now, Location.X, Location.Y));
+                CenterToScreen();
+                Settings.Default.WindowLocation = new Point(0, 0);
+            }
             Size = Settings.Default.WindowSize;
+            
 
             menuWordWrap.Checked = Settings.Default.WordWrap;
             TopMost = Settings.Default.AlwaysOnTop;
@@ -41,8 +50,39 @@ namespace Nocs.Forms
                 // make sure user was validated
                 if (!string.IsNullOrEmpty(NocsService.Username) && !string.IsNullOrEmpty(NocsService.Password))
                 {
-                    // inform user that we are retrieving items (documents)
-                    Status(StatusType.Retrieve, "Retrieving the list of documents..");
+                    RetrieveDocuments();
+
+                    // reset help variable
+                    NocsService.AccountChanged = false;
+                }
+            }
+
+            // if user has already used the application with proper Google credentials, we'll start the Google DocumentsList service
+            else
+            {
+                // copy the account info from settings to NocsService
+                NocsService.Username = Settings.Default.GoogleUsername;
+                NocsService.Password = Tools.Decrypt(Settings.Default.GooglePassword);
+
+                // if Google login info hasn't been saved, let's show the Login form
+                if (string.IsNullOrEmpty(NocsService.Password))
+                {
+                    var nocsLogin = new Login();
+                    nocsLogin.ShowDialog();
+
+                    // make sure user was validated
+                    if (!string.IsNullOrEmpty(NocsService.Username) && !string.IsNullOrEmpty(NocsService.Password))
+                    {
+                        RetrieveDocuments();
+
+                        // reset help variable
+                        NocsService.AccountChanged = false;
+                    }
+                }
+                else
+                {
+                    // inform user that we are starting the service
+                    Status(StatusType.Authorize, "Authenticating with Google..");
 
                     // disable menu options for changing the Google Account, for browsing Google Docs
                     // and for saving while items are being retrieved
@@ -50,34 +90,12 @@ namespace Nocs.Forms
                     menuBrowse.Enabled = false;
                     menuSave.Enabled = false;
 
-                    // reset help variable
-                    NocsService.AccountChanged = false;
-
-                    // run the backgroundworker for retrieving items
-                    BgWorkerGetAllItems.RunWorkerAsync();
+                    // run the backgroundworker for starting the service
+                    BgWorkerStartService.RunWorkerAsync(false);
                 }
             }
-
-            // if user has already used the application with proper google credentials, we'll start the Google DocumentsList service
-            else
-            {
-                // copy the account info from settings to NocsService
-                NocsService.Username = Settings.Default.GoogleUsername;
-                NocsService.Password = Tools.Decrypt(Settings.Default.GooglePassword);
-
-                // inform user that we are starting the service
-                Status(StatusType.Authorize, "Authenticating with Google..");
-
-                // disable menu options for changing the Google Account, for browsing Google Docs
-                // and for saving while items are being retrieved
-                menuGoogleAccount.Enabled = false;
-                menuBrowse.Enabled = false;
-                menuSave.Enabled = false;
-
-                // run the backgroundworker for starting the service
-                BgWorkerStartService.RunWorkerAsync(false);
-            }
         }
+
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -119,7 +137,6 @@ namespace Nocs.Forms
                         else
                         {
                             // ask for a name
-                            var inputName = new SaveDialog();
                             var saveResponse = SaveDialog.SaveDialogBox("Enter a name for your file:", "Save", "Untitled");
 
                             if (!string.IsNullOrEmpty(saveResponse.DocumentName))
@@ -266,19 +283,30 @@ namespace Nocs.Forms
                     lowerCaseError.Contains("remote name could not be resolved") ||
                     lowerCaseError.Contains("unable to connect to the remote server"))
                 {
-                    MessageBox.Show(new Form { TopMost = true }, "Can't connect to internet. Make sure you're online and try again.", "Can't connect to internet", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(new Form { TopMost = true },
+                                    "Can't connect to internet. Make sure you're online and try again.",
+                                    "Can't connect to internet",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else if (lowerCaseError.Contains("resource not found"))
                 {
-                    MessageBox.Show(new Form { TopMost = true }, "A resource couldn't be found while attempting an update. Please investigate nocs.log and report any errors at http://nocs.googlecode.com/. Thanks!", "Resource not found", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(new Form { TopMost = true },
+                                    "A resource couldn't be found while attempting an update. Please investigate nocs.log and report any errors at http://nocs.googlecode.com/. Thanks!",
+                                    "Resource not found",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 else
                 {
-                    MessageBox.Show(new Form { TopMost = true }, "Error occurred while syncing, please close Nocs, inspect nocs.log and report found errors to http://nocs.googlecode.com/", "Error while syncing", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(new Form { TopMost = true },
+                                    "Error occurred while syncing, please close Nocs, inspect nocs.log and report found errors to http://nocs.googlecode.com/",
+                                    "Error while syncing",
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+
             Trace.Flush();
         }
+
 
         /// <summary>
         /// Invoked when a Noc notifies the Main form of an expired token.
@@ -494,7 +522,7 @@ namespace Nocs.Forms
             // ctrl + o was pressed, let's open the browse screen
             if (menuBrowse.Enabled && e.Control && e.KeyCode == Keys.O)
             {
-                menuBrowse_Click(null, null);
+                MenuBrowseClick(null, null);
             }
         }
 
@@ -762,5 +790,25 @@ namespace Nocs.Forms
                 menuSaveFileAs.Enabled = false;
             }
         }
+
+
+        /// <summary>
+        /// Starts retrieving documents from Google Docs.
+        /// </summary>
+        private void RetrieveDocuments()
+        {
+            // let's inform user that we are retrieving items (documents & folders)
+            Status(StatusType.Retrieve, "Retrieving documents..");
+
+            // disable menu options for changing the Google Account, for browsing Google Docs
+            // and for saving while items are being retrieved
+            menuGoogleAccount.Enabled = false;
+            menuBrowse.Enabled = false;
+            menuSave.Enabled = false;
+
+            // run the backgroundworker for retrieving items
+            BgWorkerGetAllItems.RunWorkerAsync();
+        }
+
     }
 }

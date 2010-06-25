@@ -12,7 +12,6 @@ namespace Nocs.Forms
 {
     public partial class Main
     {
-
         #region Start Service
 
         private void BgWorkerStartService_DoWork(object sender, DoWorkEventArgs e)

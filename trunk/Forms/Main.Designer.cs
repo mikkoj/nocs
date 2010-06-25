@@ -150,7 +150,7 @@
                         | System.Windows.Forms.Keys.S)));
             this.menuSaveAs.Size = new System.Drawing.Size(212, 22);
             this.menuSaveAs.Text = "Save &As...";
-            this.menuSaveAs.Click += new System.EventHandler(this.menuSaveAs_Click);
+            this.menuSaveAs.Click += new System.EventHandler(this.MenuSaveAsClick);
             // 
             // toolStripSeparator9
             // 
@@ -165,7 +165,7 @@
                         | System.Windows.Forms.Keys.O)));
             this.menuLoadFile.Size = new System.Drawing.Size(212, 22);
             this.menuLoadFile.Text = "Load File...";
-            this.menuLoadFile.Click += new System.EventHandler(this.menuLoadFile_Click);
+            this.menuLoadFile.Click += new System.EventHandler(this.MenuLoadFileClick);
             // 
             // menuSaveFileAs
             // 
@@ -174,7 +174,7 @@
                         | System.Windows.Forms.Keys.S)));
             this.menuSaveFileAs.Size = new System.Drawing.Size(212, 22);
             this.menuSaveFileAs.Text = "Save File As...";
-            this.menuSaveFileAs.Click += new System.EventHandler(this.menuSaveFileAs_Click);
+            this.menuSaveFileAs.Click += new System.EventHandler(this.MenuSaveFileAsClick);
             // 
             // toolStripSeparator4
             // 
@@ -186,7 +186,7 @@
             this.menuExit.Name = "menuExit";
             this.menuExit.Size = new System.Drawing.Size(212, 22);
             this.menuExit.Text = "E&xit";
-            this.menuExit.Click += new System.EventHandler(this.menuExit_Click);
+            this.menuExit.Click += new System.EventHandler(this.MenuExitClick);
             // 
             // editMenu
             // 
@@ -260,28 +260,28 @@
             this.menuWordWrap.Name = "menuWordWrap";
             this.menuWordWrap.Size = new System.Drawing.Size(161, 22);
             this.menuWordWrap.Text = "Word Wrap";
-            this.menuWordWrap.CheckedChanged += new System.EventHandler(this.menuWordWrap_CheckedChanged);
+            this.menuWordWrap.CheckedChanged += new System.EventHandler(this.MenuWordWrapCheckedChanged);
             // 
             // menuFont
             // 
             this.menuFont.Name = "menuFont";
             this.menuFont.Size = new System.Drawing.Size(161, 22);
             this.menuFont.Text = "Font...";
-            this.menuFont.Click += new System.EventHandler(this.menuFont_Click);
+            this.menuFont.Click += new System.EventHandler(this.MenuFontClick);
             // 
             // menuPreferences
             // 
             this.menuPreferences.Name = "menuPreferences";
             this.menuPreferences.Size = new System.Drawing.Size(161, 22);
             this.menuPreferences.Text = "Preferences...";
-            this.menuPreferences.Click += new System.EventHandler(this.menuPreferences_Click);
+            this.menuPreferences.Click += new System.EventHandler(this.MenuPreferencesClick);
             // 
             // menuGoogleAccount
             // 
             this.menuGoogleAccount.Name = "menuGoogleAccount";
             this.menuGoogleAccount.Size = new System.Drawing.Size(161, 22);
             this.menuGoogleAccount.Text = "Google Account...";
-            this.menuGoogleAccount.Click += new System.EventHandler(this.menuGoogleAccount_Click);
+            this.menuGoogleAccount.Click += new System.EventHandler(this.MenuGoogleAccountClick);
             // 
             // menuAlwaysOnTop
             // 
@@ -289,7 +289,7 @@
             this.menuAlwaysOnTop.Name = "menuAlwaysOnTop";
             this.menuAlwaysOnTop.Size = new System.Drawing.Size(161, 22);
             this.menuAlwaysOnTop.Text = "Always On Top";
-            this.menuAlwaysOnTop.CheckedChanged += new System.EventHandler(this.menuAlwaysOnTop_CheckedChanged);
+            this.menuAlwaysOnTop.CheckedChanged += new System.EventHandler(this.MenuAlwaysOnTopCheckedChanged);
             // 
             // helpMenu
             // 
@@ -305,7 +305,7 @@
             this.menuAbout.Name = "menuAbout";
             this.menuAbout.Size = new System.Drawing.Size(115, 22);
             this.menuAbout.Text = "&About...";
-            this.menuAbout.Click += new System.EventHandler(this.menuAbout_Click);
+            this.menuAbout.Click += new System.EventHandler(this.MenuAboutClick);
             // 
             // statusBar
             // 
@@ -392,7 +392,7 @@
             // 
             // printDocument
             // 
-            this.printDocument.PrintPage += new System.Drawing.Printing.PrintPageEventHandler(this.printDocument_PrintPage);
+            this.printDocument.PrintPage += new System.Drawing.Printing.PrintPageEventHandler(this.PrintDocumentPrintPage);
             // 
             // toolStripSeparator2
             // 
@@ -486,7 +486,7 @@
             this.menuNew.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
             this.menuNew.Size = new System.Drawing.Size(212, 22);
             this.menuNew.Text = "&New";
-            this.menuNew.Click += new System.EventHandler(this.menuNew_Click);
+            this.menuNew.Click += new System.EventHandler(this.MenuNewClick);
             // 
             // menuBrowse
             // 
@@ -496,7 +496,7 @@
             this.menuBrowse.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
             this.menuBrowse.Size = new System.Drawing.Size(212, 22);
             this.menuBrowse.Text = "&Browse Google Docs";
-            this.menuBrowse.Click += new System.EventHandler(this.menuBrowse_Click);
+            this.menuBrowse.Click += new System.EventHandler(this.MenuBrowseClick);
             // 
             // menuSave
             // 
@@ -506,7 +506,7 @@
             this.menuSave.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
             this.menuSave.Size = new System.Drawing.Size(212, 22);
             this.menuSave.Text = "&Save";
-            this.menuSave.Click += new System.EventHandler(this.menuSave_Click);
+            this.menuSave.Click += new System.EventHandler(this.MenuSaveClick);
             // 
             // menuUndo
             // 

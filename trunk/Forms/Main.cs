@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
@@ -43,7 +43,7 @@ namespace Nocs.Forms
         private Point _tabMenuLocation;
 
 
-        public Main()
+        public Main(IList<string> args)
         {
             InitializeComponent();
 
@@ -54,8 +54,16 @@ namespace Nocs.Forms
             _synchronizer.InitializeSynchronizer();
             _synchronizer.Start();
 
-            // let's then create a new tab (Noc) for the editor and add the editor inside the tab
-            AddNoc();
+            // if arguments contain a txt-file to be opened, let's add that as a new tab instead of creating a new one
+            if (args != null && args.Count > 0 && File.Exists(args[0]))
+            {
+                ReadAndLoadLocalFile(args[0]);
+            }
+            else
+            {
+                // let's then create a new tab (Noc) for the editor and add the editor inside the tab
+                AddNoc();
+            }
 
             // let's also initialize the timer for automatically retrieving all documents
             _autoFetchAllEntriesTimer = new Timer
@@ -69,7 +77,7 @@ namespace Nocs.Forms
 
         #region File Menu
 
-        private void menuNew_Click(object sender, EventArgs e)
+        private void MenuNewClick(object sender, EventArgs e)
         {
             // let's create a new tab (Noc)
             AddNoc();
@@ -83,7 +91,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void menuSave_Click(object sender, EventArgs e)
+        private void MenuSaveClick(object sender, EventArgs e)
         {
             // let's first make sure the document content has changed
             var currentTab = tabs.SelectedTab as Noc;
@@ -105,11 +113,7 @@ namespace Nocs.Forms
                 var login = new Login();
                 if (login.ShowDialog() == DialogResult.OK)
                 {
-                    Status(StatusType.Retrieve, "Retrieving items...");
-                    menuGoogleAccount.Enabled = false;
-                    menuBrowse.Enabled = false;
-                    menuSave.Enabled = false;
-                    BgWorkerGetAllItems.RunWorkerAsync();
+                    RetrieveDocuments();
                 }
                 return;
             }
@@ -123,7 +127,6 @@ namespace Nocs.Forms
             else
             {
                 // ask for a name
-                var inputName = new SaveDialog();
                 var saveResponse = SaveDialog.SaveDialogBox("Enter a name for your file:", "Save", "Untitled");
 
                 if (!string.IsNullOrEmpty(saveResponse.DocumentName))
@@ -135,7 +138,7 @@ namespace Nocs.Forms
         }
 
 
-        private void menuSaveAs_Click(object sender, EventArgs e)
+        private void MenuSaveAsClick(object sender, EventArgs e)
         {
             // let's first make sure the document content has changed
             var currentTab = tabs.SelectedTab as Noc;
@@ -157,11 +160,7 @@ namespace Nocs.Forms
                 var login = new Login();
                 if (login.ShowDialog() == DialogResult.OK)
                 {
-                    Status(StatusType.Retrieve, "Retrieving items...");
-                    menuGoogleAccount.Enabled = false;
-                    menuBrowse.Enabled = false;
-                    menuSave.Enabled = false;
-                    BgWorkerGetAllItems.RunWorkerAsync();
+                    RetrieveDocuments();
                 }
                 return;
             }
@@ -178,7 +177,7 @@ namespace Nocs.Forms
         }
 
 
-        private void menuBrowse_Click(object sender, EventArgs e)
+        private void MenuBrowseClick(object sender, EventArgs e)
         {
             // make sure we are authenticated
             if (!NocsService.UserIsAuthenticated())
@@ -221,7 +220,7 @@ namespace Nocs.Forms
         }
 
 
-        private void menuLoadFile_Click(object sender, EventArgs e)
+        private void MenuLoadFileClick(object sender, EventArgs e)
         {
             var openFileDialog = new OpenFileDialog
             {
@@ -231,50 +230,17 @@ namespace Nocs.Forms
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                // we'll use a StringBuilder to collect all text data from the dropped document(s)
-                var builder = new StringBuilder();
-
                 // let's get the array of file paths
                 var filePath = openFileDialog.FileName;
                 if (File.Exists(filePath))
                 {
-                    // let's read the contents and append it to the textbox
-                    using (TextReader tr = new StreamReader(filePath, Encoding.Default))
-                    {
-                        builder.AppendLine(tr.ReadToEnd());
-                    }
-                }
-
-                var openedContent = builder.ToString();
-                if (openedContent.Length > 0)
-                {
-                    var textbox = GetCurrentNocTextEditor();
-                    if (textbox != null)
-                    {
-                        // get the start position to drop the text  
-                        var i = textbox.SelectionStart;
-                        var s = textbox.Text.Substring(i);
-
-                        // let's drop the text on the RichTextBox
-                        textbox.Text = textbox.Text.Substring(0, i) + openedContent + s;
-                    }
-                    else
-                    {
-                        // no tabs found, let's create one and try again
-                        AddNoc();
-                        textbox = GetCurrentNocTextEditor();
-                        // get the start position to drop the text  
-                        var i = textbox.SelectionStart;
-                        var s = textbox.Text.Substring(i);
-
-                        // let's drop the text on the RichTextBox
-                        textbox.Text = textbox.Text.Substring(0, i) + openedContent + s;
-                    }
+                    ReadAndLoadLocalFile(filePath);
                 }
             }
         }
 
-        private void menuSaveFileAs_Click(object sender, EventArgs e)
+
+        private void MenuSaveFileAsClick(object sender, EventArgs e)
         {
             // let's first get the current file content
             var txtContent = GetCurrentNocTextEditor();
@@ -296,7 +262,7 @@ namespace Nocs.Forms
         }
 
 
-        private void menuPageSetup_Click(object sender, EventArgs e)
+        private void MenuPageSetupClick(object sender, EventArgs e)
         {
             // set the default page settings and show the pageSetup dialog
             var pageSetupDialog = new PageSetupDialog
@@ -317,7 +283,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void menuPrint_Click(object sender, EventArgs e)
+        private void MenuPrintClick(object sender, EventArgs e)
         {
             // set the document for printing
             var printDialog = new PrintDialog
@@ -334,7 +300,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void printDocument_PrintPage(object sender, PrintPageEventArgs e)
+        private void PrintDocumentPrintPage(object sender, PrintPageEventArgs e)
         {
             // get page margins from event arguments
             var r = e.MarginBounds;
@@ -347,7 +313,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void menuExit_Click(object sender, EventArgs e)
+        private void MenuExitClick(object sender, EventArgs e)
         {
             Close();
         }
@@ -457,7 +423,7 @@ namespace Nocs.Forms
 
         #region Options Menu
 
-        private void menuWordWrap_CheckedChanged(object sender, EventArgs e)
+        private void MenuWordWrapCheckedChanged(object sender, EventArgs e)
         {
             Settings.Default.WordWrap = menuWordWrap.Checked;
             Settings.Default.Save();
@@ -467,7 +433,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void menuFont_Click(object sender, EventArgs e)
+        private void MenuFontClick(object sender, EventArgs e)
         {
             // open font dialog and change all editors' fonts if OK is clicked
             fontDialog.Font = Settings.Default.Font;
@@ -482,7 +448,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void menuPreferences_Click(object sender, EventArgs e)
+        private void MenuPreferencesClick(object sender, EventArgs e)
         {
             // make sure we are authenticated
             if (!NocsService.UserIsAuthenticated())
@@ -491,11 +457,7 @@ namespace Nocs.Forms
                 var login = new Login();
                 if (login.ShowDialog() == DialogResult.OK)
                 {
-                    Status(StatusType.Retrieve, "Retrieving items...");
-                    menuGoogleAccount.Enabled = false;
-                    menuBrowse.Enabled = false;
-                    menuSave.Enabled = false;
-                    BgWorkerGetAllItems.RunWorkerAsync();
+                    RetrieveDocuments();
                 }
                 return;
             }
@@ -534,7 +496,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void menuGoogleAccount_Click(object sender, EventArgs e)
+        private void MenuGoogleAccountClick(object sender, EventArgs e)
         {
             // let's first stop all processing
             _synchronizer.Stop();
@@ -568,7 +530,6 @@ namespace Nocs.Forms
                         else
                         {
                             // ask for a name
-                            var inputName = new SaveDialog();
                             var saveResponse = SaveDialog.SaveDialogBox("Enter a name for your file:", "Save", "Untitled");
 
                             if (!string.IsNullOrEmpty(saveResponse.DocumentName))
@@ -633,7 +594,7 @@ namespace Nocs.Forms
 
         }
 
-        private void menuAlwaysOnTop_CheckedChanged(object sender, EventArgs e)
+        private void MenuAlwaysOnTopCheckedChanged(object sender, EventArgs e)
         {
             TopMost = menuAlwaysOnTop.Checked;
             Settings.Default.AlwaysOnTop = menuAlwaysOnTop.Checked;
@@ -645,7 +606,7 @@ namespace Nocs.Forms
 
         #region Help Menu
 
-        private void menuAbout_Click(object sender, EventArgs e)
+        private void MenuAboutClick(object sender, EventArgs e)
         {
             var about = new About();
             about.ShowDialog();
@@ -714,6 +675,46 @@ namespace Nocs.Forms
 
 
         #region Helpers
+
+        private void ReadAndLoadLocalFile(string filePath)
+        {
+            // we'll use a StringBuilder to collect all text data from the dropped document(s)
+            var builder = new StringBuilder();
+
+            // let's read the contents and append it to the textbox
+            using (TextReader tr = new StreamReader(filePath, Encoding.Default))
+            {
+                builder.AppendLine(tr.ReadToEnd());
+            }
+
+            var openedContent = builder.ToString();
+            if (openedContent.Length > 0)
+            {
+                var textbox = GetCurrentNocTextEditor();
+                if (textbox != null)
+                {
+                    // get the start position to drop the text
+                    var i = textbox.SelectionStart;
+                    var s = textbox.Text.Substring(i);
+
+                    // let's drop the text on the RichTextBox
+                    textbox.Text = textbox.Text.Substring(0, i) + openedContent + s;
+                }
+                else
+                {
+                    // no tabs found, let's create one and try again
+                    AddNoc();
+                    textbox = GetCurrentNocTextEditor();
+                    // get the start position to drop the text  
+                    var i = textbox.SelectionStart;
+                    var s = textbox.Text.Substring(i);
+
+                    // let's drop the text on the RichTextBox
+                    textbox.Text = textbox.Text.Substring(0, i) + openedContent + s;
+                }
+            }
+        }
+
 
         private void AddNoc()
         {
@@ -794,6 +795,11 @@ namespace Nocs.Forms
         /// </summary>
         private RichTextBox GetCurrentNocTextEditor()
         {
+            if (tabs == null || tabs.TabCount == 0)
+            {
+                return null;
+            }
+
             var currentTab = tabs.SelectedTab as Noc;
             if (currentTab != null)
             {

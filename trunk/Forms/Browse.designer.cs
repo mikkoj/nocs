@@ -67,7 +67,7 @@
             this.btnLoad.TabIndex = 3;
             this.btnLoad.Text = "Load";
             this.btnLoad.UseVisualStyleBackColor = true;
-            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
+            this.btnLoad.Click += new System.EventHandler(this.BtnLoadClick);
             // 
             // btnRename
             // 
@@ -81,7 +81,7 @@
             this.btnRename.TabIndex = 4;
             this.btnRename.Text = "Rename";
             this.btnRename.UseVisualStyleBackColor = true;
-            this.btnRename.Click += new System.EventHandler(this.btnRename_Click);
+            this.btnRename.Click += new System.EventHandler(this.BtnRenameClick);
             // 
             // btnDelete
             // 
@@ -95,7 +95,7 @@
             this.btnDelete.TabIndex = 5;
             this.btnDelete.Text = "Delete";
             this.btnDelete.UseVisualStyleBackColor = true;
-            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+            this.btnDelete.Click += new System.EventHandler(this.BtnDeleteClick);
             // 
             // btnClose
             // 
@@ -109,7 +109,7 @@
             this.btnClose.TabIndex = 6;
             this.btnClose.Text = "Close";
             this.btnClose.UseVisualStyleBackColor = true;
-            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            this.btnClose.Click += new System.EventHandler(this.BtnCloseClick);
             // 
             // lstItems
             // 
@@ -129,12 +129,12 @@
             this.lstItems.Size = new System.Drawing.Size(242, 258);
             this.lstItems.Sorted = true;
             this.lstItems.TabIndex = 2;
-            this.lstItems.SelectedIndexChanged += new System.EventHandler(this.lstItems_SelectedIndexChanged);
-            this.lstItems.Format += new System.Windows.Forms.ListControlConvertEventHandler(this.lstItems_Format);
-            this.lstItems.DragOver += new System.Windows.Forms.DragEventHandler(this.lstItems_DragOver);
-            this.lstItems.DoubleClick += new System.EventHandler(this.lstItems_DoubleClick);
-            this.lstItems.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lstItems_KeyDown);
-            this.lstItems.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstItems_MouseDown);
+            this.lstItems.SelectedIndexChanged += new System.EventHandler(this.LstItemsSelectedIndexChanged);
+            this.lstItems.Format += new System.Windows.Forms.ListControlConvertEventHandler(this.LstItemsFormat);
+            this.lstItems.DragOver += new System.Windows.Forms.DragEventHandler(this.LstItemsDragOver);
+            this.lstItems.DoubleClick += new System.EventHandler(this.LstItemsDoubleClick);
+            this.lstItems.KeyDown += new System.Windows.Forms.KeyEventHandler(this.LstItemsKeyDown);
+            this.lstItems.MouseDown += new System.Windows.Forms.MouseEventHandler(this.LstItemsMouseDown);
             // 
             // BgWorkerRenameEntry
             // 
@@ -178,14 +178,14 @@
             this.treeFolders.ShowLines = false;
             this.treeFolders.Size = new System.Drawing.Size(165, 258);
             this.treeFolders.TabIndex = 1;
-            this.treeFolders.AfterCollapse += new System.Windows.Forms.TreeViewEventHandler(this.treeFolders_AfterCollapse);
-            this.treeFolders.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.treeFolders_AfterExpand);
-            this.treeFolders.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeFolders_AfterSelect);
-            this.treeFolders.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeFolders_DragDrop);
-            this.treeFolders.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeFolders_DragEnter);
-            this.treeFolders.DragOver += new System.Windows.Forms.DragEventHandler(this.treeFolders_DragOver);
-            this.treeFolders.DragLeave += new System.EventHandler(this.treeFolders_DragLeave);
-            this.treeFolders.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeFolders_MouseDown);
+            this.treeFolders.AfterCollapse += new System.Windows.Forms.TreeViewEventHandler(this.TreeFoldersAfterCollapse);
+            this.treeFolders.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.TreeFoldersAfterExpand);
+            this.treeFolders.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TreeFoldersAfterSelect);
+            this.treeFolders.DragDrop += new System.Windows.Forms.DragEventHandler(this.TreeFoldersDragDrop);
+            this.treeFolders.DragEnter += new System.Windows.Forms.DragEventHandler(this.TreeFoldersDragEnter);
+            this.treeFolders.DragOver += new System.Windows.Forms.DragEventHandler(this.TreeFoldersDragOver);
+            this.treeFolders.DragLeave += new System.EventHandler(this.TreeFoldersDragLeave);
+            this.treeFolders.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TreeFoldersMouseDown);
             // 
             // foldersImageList
             // 
@@ -216,7 +216,7 @@
             this.menuRenameFolder.Overflow = System.Windows.Forms.ToolStripItemOverflow.Always;
             this.menuRenameFolder.Size = new System.Drawing.Size(91, 22);
             this.menuRenameFolder.Text = "Rename folder";
-            this.menuRenameFolder.Click += new System.EventHandler(this.menuRenameFolder_Click);
+            this.menuRenameFolder.Click += new System.EventHandler(this.MenuRenameFolderClick);
             // 
             // menuDeleteFolder
             // 
@@ -227,7 +227,7 @@
             this.menuDeleteFolder.Overflow = System.Windows.Forms.ToolStripItemOverflow.Always;
             this.menuDeleteFolder.Size = new System.Drawing.Size(91, 22);
             this.menuDeleteFolder.Text = "Delete folder";
-            this.menuDeleteFolder.Click += new System.EventHandler(this.menuDeleteFolder_Click);
+            this.menuDeleteFolder.Click += new System.EventHandler(this.MenuDeleteFolderClick);
             // 
             // splitContainer
             // 
@@ -241,7 +241,6 @@
             // 
             this.splitContainer.Panel1.AllowDrop = true;
             this.splitContainer.Panel1.Controls.Add(this.treeFolders);
-            this.splitContainer.Panel1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.splitContainer_Panel1_MouseDown);
             // 
             // splitContainer.Panel2
             // 
@@ -303,7 +302,7 @@
             this.menuCreateFolder.Size = new System.Drawing.Size(127, 22);
             this.menuCreateFolder.Text = "Create folder";
             this.menuCreateFolder.TextImageRelation = System.Windows.Forms.TextImageRelation.TextAboveImage;
-            this.menuCreateFolder.Click += new System.EventHandler(this.menuCreateFolder_Click);
+            this.menuCreateFolder.Click += new System.EventHandler(this.MenuCreateFolderClick);
             // 
             // Browse
             // 

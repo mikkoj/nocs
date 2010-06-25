@@ -27,8 +27,8 @@ namespace Nocs.Forms
                 _validated = true;
 
                 // temporarily disable TextChanged wiring
-                txtGUser.TextChanged -= txtGBUser_TextChanged;
-                txtGPassword.TextChanged -= txtGBPassword_TextChanged;
+                txtGUser.TextChanged -= TxtGbUserTextChanged;
+                txtGPassword.TextChanged -= TxtGbPasswordTextChanged;
 
                 // fill fields
                 if (!string.IsNullOrEmpty(NocsService.Username) && !string.IsNullOrEmpty(NocsService.Password))
@@ -45,8 +45,8 @@ namespace Nocs.Forms
                 chkSaveGoogleAccount.Checked = Settings.Default.SaveGoogleAccount;
 
                 // re-enable events for TextChanged
-                txtGUser.TextChanged += txtGBUser_TextChanged;
-                txtGPassword.TextChanged += txtGBPassword_TextChanged;
+                txtGUser.TextChanged += TxtGbUserTextChanged;
+                txtGPassword.TextChanged += TxtGbPasswordTextChanged;
 
                 btnValidateOK.Text = "OK";
                 btnValidateOK.Enabled = true;
@@ -56,7 +56,7 @@ namespace Nocs.Forms
 
         #region Control Event Handlers
 
-        private void btnValidateOK_Click(object sender, EventArgs e)
+        private void BtnValidateOkClick(object sender, EventArgs e)
         {
             // when Validate / OK button is pressed either validate user
             // with the given credentials or close the dialog
@@ -96,12 +96,12 @@ namespace Nocs.Forms
             }
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
+        private void BtnCancelClick(object sender, EventArgs e)
         {
             Dispose();
         }
 
-        private void txtGBUser_TextChanged(object sender, EventArgs e)
+        private void TxtGbUserTextChanged(object sender, EventArgs e)
         {
             // disable OK/Validate-button whenever the user or password-field is empty
             if (!string.IsNullOrEmpty(txtGUser.Text) && !string.IsNullOrEmpty(txtGPassword.Text))
@@ -124,7 +124,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void txtGBPassword_TextChanged(object sender, EventArgs e)
+        private void TxtGbPasswordTextChanged(object sender, EventArgs e)
         {
             // same as txtGBUser_TextChanged, but this monitors the password-field
             if (!string.IsNullOrEmpty(txtGUser.Text) && !string.IsNullOrEmpty(txtGPassword.Text))
@@ -152,7 +152,7 @@ namespace Nocs.Forms
 
         #region Background Workers
 
-        private void bgWorker_Validate_DoWork(object sender, DoWorkEventArgs e)
+        private void BgWorkerValidateDoWork(object sender, DoWorkEventArgs e)
         {
             if (Tools.IsConnected())
             {
@@ -165,7 +165,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void bgWorker_Validate_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void BgWorkerValidateRunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (e.Error != null)
             {

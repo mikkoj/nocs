@@ -273,7 +273,7 @@ namespace Nocs.Models
                 var filePaths = (string[])(e.Data.GetData(DataFormats.FileDrop));
                 foreach (var fileLoc in filePaths)
                 {
-                    if (File.Exists(fileLoc) && fileLoc.Substring(fileLoc.Length - 3, 3) == "txt")
+                    if (File.Exists(fileLoc))
                     {
                         // let's read the contents and append it to the textbox
                         using (TextReader tr = new StreamReader(fileLoc, Encoding.UTF8))
@@ -360,6 +360,8 @@ namespace Nocs.Models
             txtContent.Text = newContent;
 
             // let's reset the cursor to the previous selection
+            txtContent.SelectionStart = 0;
+            txtContent.ScrollToCaret();
             txtContent.SelectionStart = newSelectionStart;
             txtContent.SelectionLength = 0;
         }
