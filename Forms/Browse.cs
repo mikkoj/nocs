@@ -131,7 +131,7 @@ namespace Nocs.Forms
 
         #region Control Events
 
-        private void lstItems_SelectedIndexChanged(object sender, EventArgs e)
+        private void LstItemsSelectedIndexChanged(object sender, EventArgs e)
         {
             // enable rename/delete only when a single item is selected
             if (lstItems.SelectedItems.Count == 1)
@@ -149,37 +149,37 @@ namespace Nocs.Forms
             btnLoad.Enabled = lstItems.SelectedItems.Count != 0;
         }
 
-        private void lstItems_KeyDown(object sender, KeyEventArgs e)
+        private void LstItemsKeyDown(object sender, KeyEventArgs e)
         {
             // shortcuts for deleting / renaming documents
             if (e.KeyCode == Keys.Delete)
             {
-                btnDelete_Click(null, null);
+                BtnDeleteClick(null, null);
             }
 
             if (e.KeyCode == Keys.F2)
             {
-                btnRename_Click(null, null);
+                BtnRenameClick(null, null);
             }
         }
 
-        private void lstItems_DoubleClick(object sender, EventArgs e)
+        private void LstItemsDoubleClick(object sender, EventArgs e)
         {
             LoadDocuments();
         }
 
-        private void btnLoad_Click(object sender, EventArgs e)
+        private void BtnLoadClick(object sender, EventArgs e)
         {
             LoadDocuments();
         }
 
-        private void btnRename_Click(object sender, EventArgs e)
+        private void BtnRenameClick(object sender, EventArgs e)
         {
             var selectedDocument = (Document)lstItems.SelectedItem;
             RenameEntry(selectedDocument);
         }
 
-        private void btnDelete_Click(object sender, EventArgs e)
+        private void BtnDeleteClick(object sender, EventArgs e)
         {
             var selectedDocument = (Document)lstItems.SelectedItem;
 
@@ -199,7 +199,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void btnClose_Click(object sender, EventArgs e)
+        private void BtnCloseClick(object sender, EventArgs e)
         {
             // close browser
             Close();
@@ -317,7 +317,7 @@ namespace Nocs.Forms
                 RefreshListBoxItemsFromSelectedFolder(false);
 
                 // let's re-enable the event for refreshing all lists once the selected node changes
-                treeFolders.AfterSelect += treeFolders_AfterSelect;
+                treeFolders.AfterSelect += TreeFoldersAfterSelect;
             }
         }
 
@@ -354,7 +354,7 @@ namespace Nocs.Forms
                 RefreshListBoxItemsFromSelectedFolder(false);
 
                 // let's re-enable the event for refreshing all lists once the selected node changes
-                treeFolders.AfterSelect += treeFolders_AfterSelect;
+                treeFolders.AfterSelect += TreeFoldersAfterSelect;
             }
         }
 
@@ -387,7 +387,7 @@ namespace Nocs.Forms
 
         #endregion
 
-        private void lstItems_Format(object sender, ListControlConvertEventArgs e)
+        private void LstItemsFormat(object sender, ListControlConvertEventArgs e)
         {
             var document = (Document)e.ListItem;
             e.Value = document.Title;
@@ -484,7 +484,7 @@ namespace Nocs.Forms
             }
 
             // let's select the TreeNode with the given folderId
-            treeFolders.AfterSelect -= treeFolders_AfterSelect;
+            treeFolders.AfterSelect -= TreeFoldersAfterSelect;
             if (!string.IsNullOrEmpty(folderId))
             {
                 treeFolders.SelectedNode = FindFolderNodeByFolderEntryId(treeFolders.Nodes, folderId);
@@ -494,7 +494,7 @@ namespace Nocs.Forms
                 // we'll select 'Items with no folder'
                 treeFolders.SelectedNode = treeFolders.Nodes[0];
             }
-            treeFolders.AfterSelect += treeFolders_AfterSelect;
+            treeFolders.AfterSelect += TreeFoldersAfterSelect;
             treeFolders.PerformLayout();
 
             // --------------------------------------------------------------------------------------------------
@@ -615,7 +615,7 @@ namespace Nocs.Forms
             return node;
         }
 
-        private void treeFolders_AfterExpand(object sender, TreeViewEventArgs e)
+        private void TreeFoldersAfterExpand(object sender, TreeViewEventArgs e)
         {
             var node = e.Node;
 
@@ -626,7 +626,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void treeFolders_AfterCollapse(object sender, TreeViewEventArgs e)
+        private void TreeFoldersAfterCollapse(object sender, TreeViewEventArgs e)
         {
             var node = e.Node;
 
@@ -637,12 +637,12 @@ namespace Nocs.Forms
             }
         }
 
-        private void treeFolders_AfterSelect(object sender, TreeViewEventArgs e)
+        private void TreeFoldersAfterSelect(object sender, TreeViewEventArgs e)
         {
             RefreshListBoxItemsFromSelectedFolder(false);
         }
 
-        private void treeFolders_MouseDown(object sender, MouseEventArgs e)
+        private void TreeFoldersMouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Right)
             {
@@ -677,7 +677,7 @@ namespace Nocs.Forms
 
         #region Drag & Drop
 
-        private void lstItems_MouseDown(object sender, MouseEventArgs e)
+        private void LstItemsMouseDown(object sender, MouseEventArgs e)
         {
             if (lstItems.SelectedItems.Count > 1 ||
                 lstItems.SelectedItems.Count == 0 ||
@@ -690,26 +690,26 @@ namespace Nocs.Forms
             lstItems.DoDragDrop(lstItems.SelectedItem, DragDropEffects.Move);
         }
 
-        private void lstItems_DragOver(object sender, DragEventArgs e)
+        private void LstItemsDragOver(object sender, DragEventArgs e)
         {
             e.Effect = DragDropEffects.Move;
         }
 
-        private void treeFolders_DragEnter(object sender, DragEventArgs e)
+        private void TreeFoldersDragEnter(object sender, DragEventArgs e)
         {
             e.Effect = DragDropEffects.Move;
 
             // let's also disable the event for refreshing all lists once the selected node changes
-            treeFolders.AfterSelect -= treeFolders_AfterSelect;
+            treeFolders.AfterSelect -= TreeFoldersAfterSelect;
         }
 
-        private void treeFolders_DragLeave(object sender, EventArgs e)
+        private void TreeFoldersDragLeave(object sender, EventArgs e)
         {
             // let's re-enable the event for refreshing all lists once the selected node changes
-            treeFolders.AfterSelect += treeFolders_AfterSelect;
+            treeFolders.AfterSelect += TreeFoldersAfterSelect;
         }
 
-        private void treeFolders_DragOver(object sender, DragEventArgs e)
+        private void TreeFoldersDragOver(object sender, DragEventArgs e)
         {
             e.Effect = DragDropEffects.Move;
 
@@ -757,13 +757,13 @@ namespace Nocs.Forms
             }
         }
 
-        private void treeFolders_DragDrop(object sender, DragEventArgs e)
+        private void TreeFoldersDragDrop(object sender, DragEventArgs e)
         {
             // 1. let's get the folder to move the document in
             var folderNodeToDropIn = treeFolders.GetNodeAt(treeFolders.PointToClient(new Point(e.X, e.Y)));
             if (folderNodeToDropIn == null)
             {
-                treeFolders.AfterSelect += treeFolders_AfterSelect;
+                treeFolders.AfterSelect += TreeFoldersAfterSelect;
                 return;
             }
             if (folderNodeToDropIn.Level > 0)
@@ -779,7 +779,7 @@ namespace Nocs.Forms
                 if (entryToBeRemovedFromAllFolders == null ||
                     entryToBeRemovedFromAllFolders.ParentFolders.Count == 0)
                 {
-                    treeFolders.AfterSelect += treeFolders_AfterSelect;
+                    treeFolders.AfterSelect += TreeFoldersAfterSelect;
                     return;
                 }
                 DisableAllForProcessing();
@@ -793,7 +793,7 @@ namespace Nocs.Forms
             // no need to continue if entry isn't a folder
             if (folderToDropIn == null || folderToDropIn.Type != Document.DocumentType.Folder)
             {
-                treeFolders.AfterSelect += treeFolders_AfterSelect;
+                treeFolders.AfterSelect += TreeFoldersAfterSelect;
                 return;
             }
 
@@ -801,7 +801,7 @@ namespace Nocs.Forms
             var entryToBeMoved = e.Data.GetData(typeof(Document)) as Document;
             if (entryToBeMoved == null)
             {
-                treeFolders.AfterSelect += treeFolders_AfterSelect;
+                treeFolders.AfterSelect += TreeFoldersAfterSelect;
                 return;
             }
 
@@ -815,7 +815,7 @@ namespace Nocs.Forms
         #endregion
 
 
-        private void menuDeleteFolder_Click(object sender, EventArgs e)
+        private void MenuDeleteFolderClick(object sender, EventArgs e)
         {
             var selectedFolder = (Document)treeFolders.SelectedNode.Tag;
             if (selectedFolder.IsDraft)
@@ -842,7 +842,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void menuRenameFolder_Click(object sender, EventArgs e)
+        private void MenuRenameFolderClick(object sender, EventArgs e)
         {
             var selectedFolder = (Document)treeFolders.SelectedNode.Tag;
             if (selectedFolder.IsDraft)
@@ -875,7 +875,7 @@ namespace Nocs.Forms
             }
         }
 
-        private void menuCreateFolder_Click(object sender, EventArgs e)
+        private void MenuCreateFolderClick(object sender, EventArgs e)
         {
             // let's get a name for the new folder
             var inputDialog = new InputDialog();
@@ -894,14 +894,6 @@ namespace Nocs.Forms
                 // let's create a new folder with the given name
                 var arguments = new object[] { folderName };
                 BgWorkerCreateFolder.RunWorkerAsync(arguments);
-            }
-        }
-
-        private void splitContainer_Panel1_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                //contextMenuCreateFolder.Show(treeFolders, e.Location);
             }
         }
     }

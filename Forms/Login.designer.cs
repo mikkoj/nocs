@@ -58,7 +58,7 @@
             this.txtGUser.Name = "txtGUser";
             this.txtGUser.Size = new System.Drawing.Size(192, 21);
             this.txtGUser.TabIndex = 1;
-            this.txtGUser.TextChanged += new System.EventHandler(this.txtGBUser_TextChanged);
+            this.txtGUser.TextChanged += new System.EventHandler(this.TxtGbUserTextChanged);
             // 
             // lblGPassword
             // 
@@ -78,7 +78,7 @@
             this.txtGPassword.PasswordChar = '*';
             this.txtGPassword.Size = new System.Drawing.Size(192, 21);
             this.txtGPassword.TabIndex = 2;
-            this.txtGPassword.TextChanged += new System.EventHandler(this.txtGBPassword_TextChanged);
+            this.txtGPassword.TextChanged += new System.EventHandler(this.TxtGbPasswordTextChanged);
             // 
             // btnValidateOK
             // 
@@ -91,7 +91,7 @@
             this.btnValidateOK.TabIndex = 4;
             this.btnValidateOK.Text = "Validate";
             this.btnValidateOK.UseVisualStyleBackColor = true;
-            this.btnValidateOK.Click += new System.EventHandler(this.btnValidateOK_Click);
+            this.btnValidateOK.Click += new System.EventHandler(this.BtnValidateOkClick);
             // 
             // btnCancel
             // 
@@ -102,13 +102,13 @@
             this.btnCancel.TabIndex = 5;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            this.btnCancel.Click += new System.EventHandler(this.BtnCancelClick);
             // 
             // bgWorker_Validate
             // 
             this.bgWorker_Validate.WorkerSupportsCancellation = true;
-            this.bgWorker_Validate.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgWorker_Validate_DoWork);
-            this.bgWorker_Validate.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bgWorker_Validate_RunWorkerCompleted);
+            this.bgWorker_Validate.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BgWorkerValidateDoWork);
+            this.bgWorker_Validate.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BgWorkerValidateRunWorkerCompleted);
             // 
             // lblValidateInfo
             // 

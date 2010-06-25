@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Nocs 2.1")]
+[assembly: AssemblyTitle("Nocs 2.2")]
 [assembly: AssemblyDescription("A Windows Notepad -style application that uses Google Docs for synchronizing text files.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Mikko Junnila")]
-[assembly: AssemblyProduct("Nocs 2.1")]
+[assembly: AssemblyProduct("Nocs 2.2")]
 [assembly: AssemblyCopyright("Copyright © Mikko Junnila 2009")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
