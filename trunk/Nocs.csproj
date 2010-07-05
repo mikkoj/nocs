@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Nocs</RootNamespace>
     <AssemblyName>Nocs</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ApplicationIcon>nocs.ico</ApplicationIcon>
     <TargetZone>Custom</TargetZone>
@@ -39,6 +39,8 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Nocs.key.pfx</AssemblyOriginatorKeyFile>
     <SignManifests>false</SignManifests>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
