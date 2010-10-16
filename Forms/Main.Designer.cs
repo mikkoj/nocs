@@ -340,7 +340,7 @@
             this.tabs.Size = new System.Drawing.Size(728, 457);
             this.tabs.TabIndex = 4;
             this.tabs.TabStop = false;
-            this.tabs.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tabs_KeyDown);
+            this.tabs.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TabsKeyDown);
             this.tabs.MouseClick += new System.Windows.Forms.MouseEventHandler(this.tabs_MouseClick);
             // 
             // menuTab
@@ -706,9 +706,9 @@
             this.KeyPreview = true;
             this.Name = "Main";
             this.Text = " Untitled - Nocs";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
-            this.Load += new System.EventHandler(this.Main_FormLoad);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Main_KeyDown);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainFormClosing);
+            this.Load += new System.EventHandler(this.MainFormLoad);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainKeyDown);
             this.menuMain.ResumeLayout(false);
             this.menuMain.PerformLayout();
             this.statusBar.ResumeLayout(false);

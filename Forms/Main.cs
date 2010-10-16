@@ -71,7 +71,7 @@ namespace Nocs.Forms
                 Enabled = true,
                 Interval = AutoFetchAllEntriesInterval * 60 * 1000
             };
-            _autoFetchAllEntriesTimer.Elapsed += AutoFetchAllEntriesTimer_Elapsed;
+            _autoFetchAllEntriesTimer.Elapsed += AutoFetchAllEntriesTimerElapsed;
         }
 
 
