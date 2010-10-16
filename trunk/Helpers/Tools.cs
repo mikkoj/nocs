@@ -35,8 +35,10 @@ namespace Nocs.Helpers
         public static Match GetMatchForDocumentContent(string html)
         {
             // let's first handle the line-breaks
+            html = Regex.Replace(html, @">&nbsp;</span>", "></span>");
             html = Regex.Replace(html, @"<div>\r\n\s*|\r\n</div>", string.Empty);
             html = Regex.Replace(html, @"\r\n", LineBreakConstant);
+            html = Regex.Replace(html, @"</p>", LineBreakConstant);
 
             // let's then remove the non-essentials
             html = Regex.Replace(html, @"\n|\r|\s\s+|<!--\[if.+?\]>|<\?XML:NAMESPACE.+?>|<!\[endif\]-->", string.Empty);
@@ -52,6 +54,23 @@ namespace Nocs.Helpers
         /// <param name="content">HTML content to be modified</param>
         /// <returns>Modified content</returns>
         public static string ParseContent(string content)
+        {
+            // let's first find the line-breaks
+            content = Regex.Replace(content, LineBreakConstant, "\n");
+
+            // next let's remove double-breaks, the title and all other html tags
+            content = Regex.Replace(content, @"\n\n|<title>.*?</title>|<[^>]*>", string.Empty);
+
+            // finally let's decode the html content and return it
+            return HttpUtility.HtmlDecode(content);
+        }
+
+        /// <summary>
+        /// Will modify the content of a new style Docs document to make it suitable for our TextEditor.
+        /// </summary>
+        /// <param name="content">HTML content to be modified</param>
+        /// <returns>Modified content</returns>
+        public static string ParseNewStyleContent(string content)
         {
             // let's first find the line-breaks
             content = Regex.Replace(content, LineBreakConstant, "\n");

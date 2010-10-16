@@ -327,7 +327,7 @@ namespace Nocs
                     document.DocumentEntry.Title.Text, error));
             }
 
-            if (refreshed != null && refreshed.ETag != originalEtag)
+            if (refreshed != null)
             {
                 Debug.WriteLine(string.Format("Found updated document: {0} - {1} -> {2}", refreshed.Title, originalEtag, refreshed.ETag));
 
@@ -358,14 +358,23 @@ namespace Nocs
             DocumentsRequest request;
             StreamReader reader;
             string html;
+            var newStyleDocument = false;
 
             try
             {
                 request = new DocumentsRequest(_settings);
+
                 var reqFactory = (GDataRequestFactory)request.Service.RequestFactory;
                 reqFactory.Proxy = GetProxy();
 
-                var stream = request.Download(doc, Document.DownloadType.html);
+                var contentAbsoluteUri = doc.DocumentEntry.Content.AbsoluteUri;
+                newStyleDocument = contentAbsoluteUri.Contains("export/Export");
+
+                var requestUri = string.Format("{0}&exportFormat={1}&format={1}", contentAbsoluteUri, "html");
+
+                var stream = request.Service.Query(new Uri(requestUri));
+                //var stream = request.Download(doc, Document.DownloadType.html);
+
                 reader = new StreamReader(stream);
 
                 // let's read the stream to end to retrieve the entire html
@@ -408,7 +417,7 @@ namespace Nocs
             {
                 // body found, let's now tweak the content before returning it
                 var content = match.Groups[1].Value;
-                doc.Content = Tools.ParseContent(content);
+                doc.Content = newStyleDocument ? Tools.ParseNewStyleContent(content) : Tools.ParseContent(content);
                 return doc;
             }
 

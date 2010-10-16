@@ -304,7 +304,8 @@ namespace Nocs.Models
                 Trace.WriteLine(DateTime.Now + " - BgWorkerSaveNoc_Completed: error while saving: " + e.Error.Message);
 
                 // check if token was expired
-                if (e.Error.Message.ToLower().Contains("token expired"))
+                var error = e.Error.Message.ToLower();
+                if (error.Contains("token expired") || error.Contains("authorization"))
                 {
                     // let's resume the synchronizer
                     _synchronizer.Start();

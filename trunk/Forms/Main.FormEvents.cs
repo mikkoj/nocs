@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using System.Timers;
 using System.Windows.Forms;
 using Google.Documents;
@@ -15,7 +14,7 @@ namespace Nocs.Forms
 {
     public partial class Main
     {
-        private void Main_FormLoad(object sender, EventArgs e)
+        private void MainFormLoad(object sender, EventArgs e)
         {
             // set window location, window size, editor's font, editor's word wrap setting,
             // encryption key, AutoSave and window's "always on top" option based on user settings
@@ -33,7 +32,7 @@ namespace Nocs.Forms
                 Settings.Default.WindowLocation = new Point(0, 0);
             }
             Size = Settings.Default.WindowSize;
-            
+
 
             menuWordWrap.Checked = Settings.Default.WordWrap;
             TopMost = Settings.Default.AlwaysOnTop;
@@ -97,7 +96,7 @@ namespace Nocs.Forms
         }
 
 
-        private void Main_FormClosing(object sender, FormClosingEventArgs e)
+        private void MainFormClosing(object sender, FormClosingEventArgs e)
         {
             // let's first find out if any of the open tabs are unsaved
             foreach (Noc tab in tabs.TabPages)
@@ -113,7 +112,7 @@ namespace Nocs.Forms
 
                     // ..and display a msg asking the user to save changes or abort
                     var result = MessageBox.Show("Do you want to save the changes to " + tab.Text + "?", "Nocs", MessageBoxButtons.YesNoCancel);
-                    
+
                     if (result == DialogResult.Yes)
                     {
                         // let's cancel the FormClosing-event
@@ -195,6 +194,13 @@ namespace Nocs.Forms
                 }
             }
 
+            // if there is a single Untitled tab with no content open, let's close it
+            var firstTab = tabs.TabPages[0] as Noc;
+            if (firstTab != null && !firstTab.ContentHasChanged && firstTab.Document.IsDraft)
+            {
+                CloseTab(0);
+            }
+
             // let's add an inactive tab with a title to the tabControl
             AddInactiveNoc(document);
 
@@ -270,25 +276,30 @@ namespace Nocs.Forms
 
         #region Other Events
 
-        private static void SynchronizerErrorWhileSyncing(SyncResult result)
+        private void SynchronizerErrorWhileSyncing(SyncResult result)
         {
             if (!string.IsNullOrEmpty(result.Error))
             {
-                Trace.WriteLine(string.Format("{0} - Main: error while syncing - type: {1} - message: {2}", DateTime.Now, result.Job.Type, result.Error));
+                Trace.WriteLine(string.Format("{0} - Main: error while syncing - type: {1} - message: {2}", DateTime.Now,
+                                              result.Job.Type, result.Error));
 
-                var lowerCaseError = result.Error.ToLowerInvariant();
+                var error = result.Error.ToLowerInvariant();
 
-                if (lowerCaseError.Contains("internet down") ||
-                    lowerCaseError.Contains("connection timed out") ||
-                    lowerCaseError.Contains("remote name could not be resolved") ||
-                    lowerCaseError.Contains("unable to connect to the remote server"))
+                if (error.Contains("authorization") || error.Contains("token expired"))
+                {
+                    TokenExpiredWhileSaving();
+                }
+                else if (error.Contains("internet down") ||
+                         error.Contains("connection timed out") ||
+                         error.Contains("remote name could not be resolved") ||
+                         error.Contains("unable to connect to the remote server"))
                 {
                     MessageBox.Show(new Form { TopMost = true },
                                     "Can't connect to internet. Make sure you're online and try again.",
                                     "Can't connect to internet",
                                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
-                else if (lowerCaseError.Contains("resource not found"))
+                else if (error.Contains("resource not found"))
                 {
                     MessageBox.Show(new Form { TopMost = true },
                                     "A resource couldn't be found while attempting an update. Please investigate nocs.log and report any errors at http://nocs.googlecode.com/. Thanks!",
@@ -370,7 +381,7 @@ namespace Nocs.Forms
         /// <summary>
         /// Will be called every 15 minutes in order to keep documents checked.
         /// </summary>
-        private void AutoFetchAllEntriesTimer_Elapsed(object sender, ElapsedEventArgs e)
+        private void AutoFetchAllEntriesTimerElapsed(object sender, ElapsedEventArgs e)
         {
             if (!BgWorkerGetAllItems.IsBusy && !_synchronizer.IsJobAlreadyQueued(AutoFetchId))
             {
@@ -410,7 +421,7 @@ namespace Nocs.Forms
                 }
             }
         }
-        
+
         private void RemoveTabThreadSafe(object value)
         {
             int tabIndex;
@@ -463,7 +474,7 @@ namespace Nocs.Forms
         /// <summary>
         /// Will track key combinations in order to move between tabs.
         /// </summary>
-        private void Main_KeyDown(object sender, KeyEventArgs e)
+        private void MainKeyDown(object sender, KeyEventArgs e)
         {
             // ctrl + w was pressed, let's close the current tab
             if (e.Control && e.KeyCode == Keys.W)
@@ -517,7 +528,7 @@ namespace Nocs.Forms
         }
 
 
-        private void tabs_KeyDown(object sender, KeyEventArgs e)
+        private void TabsKeyDown(object sender, KeyEventArgs e)
         {
             // ctrl + o was pressed, let's open the browse screen
             if (menuBrowse.Enabled && e.Control && e.KeyCode == Keys.O)
@@ -585,77 +596,77 @@ namespace Nocs.Forms
             switch (statusType)
             {
                 case StatusType.Authorize:
-                {
-                    if (Settings.Default.StatusBarStyle == "Minimal")
                     {
-                        pictStatusMinimal.Visible = true;
+                        if (Settings.Default.StatusBarStyle == "Minimal")
+                        {
+                            pictStatusMinimal.Visible = true;
+                        }
+                        else
+                        {
+                            lblStatus.ForeColor = Color.FromArgb(((((0)))), ((((81)))), ((((0)))));
+                        }
+                        break;
                     }
-                    else
-                    {
-                        lblStatus.ForeColor = Color.FromArgb(((((0)))), ((((81)))), ((((0)))));
-                    }
-                    break;
-                }
 
                 case StatusType.Info:
-                {
-                    lblStatus.ForeColor = Color.FromArgb(((((0)))), ((((81)))), ((((0)))));
-                    break;
-                }
-                case StatusType.Error:
-                {
-                    lblStatus.Visible = true;
-                    lblStatus.ForeColor = Color.FromArgb(((((192)))), ((((0)))), ((((0)))));
-                    pictStatusMinimal.Visible = false;
-
-                    // we'll cut too long errors
-                    if (statusObject.ToString().Length > 90)
                     {
-                        statusObject = statusObject.ToString().Substring(0, 85) + "..";
+                        lblStatus.ForeColor = Color.FromArgb(((((0)))), ((((81)))), ((((0)))));
+                        break;
                     }
+                case StatusType.Error:
+                    {
+                        lblStatus.Visible = true;
+                        lblStatus.ForeColor = Color.FromArgb(((((192)))), ((((0)))), ((((0)))));
+                        pictStatusMinimal.Visible = false;
 
-                    break;
-                }
+                        // we'll cut too long errors
+                        if (statusObject.ToString().Length > 90)
+                        {
+                            statusObject = statusObject.ToString().Substring(0, 85) + "..";
+                        }
+
+                        break;
+                    }
 
                 case StatusType.Save:
-                {
-                    if (Settings.Default.StatusBarStyle == "Minimal")
                     {
-                        pictStatusMinimal.Visible = true;
+                        if (Settings.Default.StatusBarStyle == "Minimal")
+                        {
+                            pictStatusMinimal.Visible = true;
+                        }
+                        else
+                        {
+                            lblStatus.ForeColor = Color.DarkBlue;
+                        }
+                        break;
                     }
-                    else
-                    {
-                        lblStatus.ForeColor = Color.DarkBlue;
-                    }
-                    break;
-                }
 
                 case StatusType.Retrieve:
-                {
-                    if (Settings.Default.StatusBarStyle == "Minimal")
                     {
-                        pictStatusMinimal.Visible = true;
+                        if (Settings.Default.StatusBarStyle == "Minimal")
+                        {
+                            pictStatusMinimal.Visible = true;
+                        }
+                        else
+                        {
+                            lblStatus.ForeColor = Color.DarkBlue;
+                        }
+                        break;
                     }
-                    else
-                    {
-                        lblStatus.ForeColor = Color.DarkBlue;
-                    }
-                    break;
-                }
 
                 case StatusType.Sync:
-                {
-                    if (Settings.Default.StatusBarStyle == "Minimal")
                     {
-                        pictStatusMinimal.Visible = true;
-                    }
-                    else
-                    {
-                        lblStatus.ForeColor = Color.DarkGreen;
-                    }
+                        if (Settings.Default.StatusBarStyle == "Minimal")
+                        {
+                            pictStatusMinimal.Visible = true;
+                        }
+                        else
+                        {
+                            lblStatus.ForeColor = Color.DarkGreen;
+                        }
 
-                    break;
-                }
+                        break;
+                    }
 
                 default:
                     break;
@@ -723,7 +734,6 @@ namespace Nocs.Forms
                     else
                     {
                         // ask for a name
-                        var inputName = new SaveDialog();
                         var saveResponse = SaveDialog.SaveDialogBox("Enter a name for your file:", "Save", "Untitled");
 
                         if (!string.IsNullOrEmpty(saveResponse.DocumentName))
