@@ -617,7 +617,7 @@ namespace Nocs.Forms
 
         #region Tab Menu
 
-        private void menuCloseTab_MouseUp(object sender, MouseEventArgs e)
+        private void MenuCloseTabMouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
@@ -632,7 +632,26 @@ namespace Nocs.Forms
             }
         }
 
-        private void tabs_MouseClick(object sender, MouseEventArgs e)
+        private void MenuPinDocumentMouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                for (var i = 0; i < tabs.TabCount; ++i)
+                {
+                    if (tabs.GetTabRect(i).Contains(_tabMenuLocation))
+                    {
+                        var tab = tabs.TabPages[i] as Noc;
+                        if (tab != null)
+                        {
+                            tab.Pinned = menuPinDocument.Checked;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        private void TabsMouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
@@ -643,6 +662,19 @@ namespace Nocs.Forms
                         // let's save the location for future reference
                         _tabMenuLocation = e.Location;
 
+                        // let's only enable pinning for documents that aren't drafts
+                        var doc = tabs.TabPages[i] as Noc;
+                        if (doc == null || doc.Document == null || doc.Document.IsDraft)
+                        {
+                            menuPinDocument.Enabled = false;
+                        }
+                        else
+                        {
+                            menuPinDocument.Enabled = true;
+
+                            // let's also show the current pinned status
+                            menuPinDocument.Checked = doc.Pinned;
+                        }
                         menuTab.Show(tabs, e.Location);
                         break;
                     }
@@ -748,9 +780,10 @@ namespace Nocs.Forms
             menuSaveFileAs.Enabled = true;
         }
 
-        private void AddInactiveNoc(Document doc)
+        private void AddInactiveNoc(Document doc, bool pinned = false)
         {
             var inactiveNoc = new Noc(doc, _synchronizer, contextMenuEditor);
+            inactiveNoc.Pinned = pinned;
 
             // let's hook up events
             inactiveNoc.CaretPositionChanged += NocCaretPositionChanged;

@@ -14,8 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Nocs.vsmdi = Nocs.vsmdi
 	EndProjectSection
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Nocs.Setup", "..\Setup1\Setup1.vdproj", "{949F2B80-69AF-47FE-866D-01083900CD55}"
-EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Nocs.vsmdi
@@ -87,15 +85,6 @@ Global
 		{310999F4-F901-4644-898A-4B8FBCC39E65}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{310999F4-F901-4644-898A-4B8FBCC39E65}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{310999F4-F901-4644-898A-4B8FBCC39E65}.Release|x86.ActiveCfg = Release|Any CPU
-		{949F2B80-69AF-47FE-866D-01083900CD55}.ASP|Any CPU.ActiveCfg = Release
-		{949F2B80-69AF-47FE-866D-01083900CD55}.ASP|Mixed Platforms.ActiveCfg = Release
-		{949F2B80-69AF-47FE-866D-01083900CD55}.ASP|x86.ActiveCfg = Release
-		{949F2B80-69AF-47FE-866D-01083900CD55}.Debug|Any CPU.ActiveCfg = Debug
-		{949F2B80-69AF-47FE-866D-01083900CD55}.Debug|Mixed Platforms.ActiveCfg = Debug
-		{949F2B80-69AF-47FE-866D-01083900CD55}.Debug|x86.ActiveCfg = Debug
-		{949F2B80-69AF-47FE-866D-01083900CD55}.Release|Any CPU.ActiveCfg = Release
-		{949F2B80-69AF-47FE-866D-01083900CD55}.Release|Mixed Platforms.ActiveCfg = Release
-		{949F2B80-69AF-47FE-866D-01083900CD55}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

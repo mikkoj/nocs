@@ -59,6 +59,9 @@ namespace Nocs.Forms
             // proxy settings
 
             chkUseProxy.Checked = Settings.Default.UseProxy;
+            
+            // default value for proxy protocol is http
+            //cmbProtocol.SelectedIndex = 0;
 
             if (Settings.Default.UseProxy)
             {
@@ -74,6 +77,7 @@ namespace Nocs.Forms
                 }
                 else
                 {
+                    //cmbProtocol.SelectedIndex = Settings.Default.ProxyProtocol.Equals("http") ? 0 : 1;
                     txtProxyHost.Text = Settings.Default.ProxyHost;
                     txtProxyPort.Text = Settings.Default.ProxyPort;
                     txtProxyUsername.Text = Settings.Default.ProxyUsername;
@@ -98,8 +102,13 @@ namespace Nocs.Forms
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            // let's collect all given settings, save them and close the form
+            // no reason to continue if proxy is invalid
+            if (!rdUseDefaultProxy.Checked && !ValidateProxyFields())
+            {
+                return;
+            }
 
+            // let's collect all given settings, save them and close the form
             Settings.Default.DocumentSortOrder = rdByTitle.Checked ? DocumentSortOrder.ByTitle.ToString() : DocumentSortOrder.ByDate.ToString();
 
             var selectedStatusBarStyle = cmbStatusBar.SelectedItem.ToString();
@@ -149,6 +158,7 @@ namespace Nocs.Forms
                 Settings.Default.AutomaticProxyDetection = rdUseDefaultProxy.Checked;
                 if (Settings.Default.AutomaticProxyDetection)
                 {
+                    Settings.Default.ProxyProtocol = string.Empty;
                     Settings.Default.ProxyHost = string.Empty;
                     Settings.Default.ProxyPort = string.Empty;
                     Settings.Default.ProxyUsername = string.Empty;
@@ -156,6 +166,7 @@ namespace Nocs.Forms
                 }
                 else
                 {
+                    //Settings.Default.ProxyProtocol = cmbProtocol.SelectedItem.ToString();
                     Settings.Default.ProxyHost = txtProxyHost.Text.Trim();
                     Settings.Default.ProxyPort = txtProxyPort.Text.Trim();
                     Settings.Default.ProxyUsername = txtProxyUsername.Text.Trim();
@@ -164,12 +175,13 @@ namespace Nocs.Forms
             }
 
             // close preferences (unless proxy fields are invalid)
-            if (!Settings.Default.UseProxy || Settings.Default.AutomaticProxyDetection || ValidateProxyFields())
+            if (!Settings.Default.UseProxy || Settings.Default.AutomaticProxyDetection)
             {
-                btnSave.DialogResult = DialogResult.OK;
                 Settings.Default.Save();
-                Dispose();
             }
+
+            btnSave.DialogResult = DialogResult.OK;
+            Dispose();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -221,27 +233,29 @@ namespace Nocs.Forms
 
         private void txtProxyHost_Leave(object sender, EventArgs e)
         {
-            ValidateProxyFields();
+            //ValidateProxyFields();
         }
 
         private void txtProxyPort_Leave(object sender, EventArgs e)
         {
-            ValidateProxyFields();
+            //ValidateProxyFields();
         }
 
         private bool ValidateProxyFields()
         {
             // we'll validate proxy as well
+            //var protocol = cmbProtocol.SelectedItem.ToString();
             var host = txtProxyHost.Text;
             var port = txtProxyPort.Text;
 
             try
             {
-                var proxy = new WebProxy(string.Format("http://{0}:{1}/", host, port), true);
+                var proxyAddress = string.Format("http://{0}:{1}/", host, port);
+                var proxy = new WebProxy(proxyAddress, true);
                 proxy.GetProxy(new Uri("http://www.google.com"));
                 return true;
             }
-            catch
+            catch (Exception e)
             {
                 MessageBox.Show("Invalid proxy, make sure the host and port are valid!", "Invalid proxy");
                 btnSave.DialogResult = DialogResult.None;

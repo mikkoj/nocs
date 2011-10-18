@@ -286,5 +286,29 @@ namespace Nocs.Properties {
                 this["DefaultSaveFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http")]
+        public string ProxyProtocol {
+            get {
+                return ((string)(this["ProxyProtocol"]));
+            }
+            set {
+                this["ProxyProtocol"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PinnedDocuments {
+            get {
+                return ((string)(this["PinnedDocuments"]));
+            }
+            set {
+                this["PinnedDocuments"] = value;
+            }
+        }
     }
 }

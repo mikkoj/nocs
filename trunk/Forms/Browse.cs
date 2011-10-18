@@ -18,7 +18,7 @@ namespace Nocs.Forms
     public partial class Browse : Form
     {
         // events for notifying the main form to load a document / handle renames/deletes
-        public delegate void BrowseOpenEventHandler(Document document);
+        public delegate void BrowseOpenEventHandler(Document document, bool pinned = false);
         public delegate void BrowseActionEventHandler(string documentId);
 
         public event BrowseOpenEventHandler AddDocumentToMainForm;

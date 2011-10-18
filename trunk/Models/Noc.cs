@@ -18,6 +18,11 @@ namespace Nocs.Models
     {
         public Document Document { get; set; }
 
+        /// <summary>
+        /// Determines whether this Noc-tab has been pinned or not.
+        /// </summary>
+        public bool Pinned { get; set; }
+
         // holds the current editor content
         private string TxtNocContentNow { get; set; }
 
