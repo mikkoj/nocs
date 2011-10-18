@@ -1026,6 +1026,7 @@ namespace Nocs
                 return WebRequest.DefaultWebProxy;
             }
 
+            //var proxyProtocol = Settings.Default.ProxyProtocol;
             var proxyHost = Settings.Default.ProxyHost;
             var proxyPort = Settings.Default.ProxyPort;
             var proxy = new WebProxy(string.Format("http://{0}:{1}/", proxyHost, proxyPort), true);

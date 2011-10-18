@@ -251,16 +251,16 @@
             this.pnlManualProxySettings.Controls.Add(this.txtProxyHost);
             this.pnlManualProxySettings.Controls.Add(this.lblProxyHttp);
             this.pnlManualProxySettings.Enabled = false;
-            this.pnlManualProxySettings.Location = new System.Drawing.Point(25, 95);
+            this.pnlManualProxySettings.Location = new System.Drawing.Point(6, 95);
             this.pnlManualProxySettings.Name = "pnlManualProxySettings";
-            this.pnlManualProxySettings.Size = new System.Drawing.Size(253, 85);
+            this.pnlManualProxySettings.Size = new System.Drawing.Size(280, 85);
             this.pnlManualProxySettings.TabIndex = 13;
             // 
             // lblProxyPassword
             // 
             this.lblProxyPassword.AutoSize = true;
             this.lblProxyPassword.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblProxyPassword.Location = new System.Drawing.Point(44, 63);
+            this.lblProxyPassword.Location = new System.Drawing.Point(74, 63);
             this.lblProxyPassword.Name = "lblProxyPassword";
             this.lblProxyPassword.Size = new System.Drawing.Size(57, 13);
             this.lblProxyPassword.TabIndex = 11;
@@ -269,7 +269,7 @@
             // txtProxyUsername
             // 
             this.txtProxyUsername.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtProxyUsername.Location = new System.Drawing.Point(103, 32);
+            this.txtProxyUsername.Location = new System.Drawing.Point(133, 32);
             this.txtProxyUsername.Name = "txtProxyUsername";
             this.txtProxyUsername.Size = new System.Drawing.Size(142, 21);
             this.txtProxyUsername.TabIndex = 11;
@@ -278,7 +278,7 @@
             // 
             this.lblProxyUsername.AutoSize = true;
             this.lblProxyUsername.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblProxyUsername.Location = new System.Drawing.Point(44, 35);
+            this.lblProxyUsername.Location = new System.Drawing.Point(74, 35);
             this.lblProxyUsername.Name = "lblProxyUsername";
             this.lblProxyUsername.Size = new System.Drawing.Size(59, 13);
             this.lblProxyUsername.TabIndex = 10;
@@ -287,7 +287,7 @@
             // txtProxyPassword
             // 
             this.txtProxyPassword.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtProxyPassword.Location = new System.Drawing.Point(103, 60);
+            this.txtProxyPassword.Location = new System.Drawing.Point(133, 60);
             this.txtProxyPassword.Name = "txtProxyPassword";
             this.txtProxyPassword.Size = new System.Drawing.Size(142, 21);
             this.txtProxyPassword.TabIndex = 12;
@@ -295,7 +295,7 @@
             // label2
             // 
             this.label2.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(197, 6);
+            this.label2.Location = new System.Drawing.Point(227, 6);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(8, 13);
             this.label2.TabIndex = 9;
@@ -304,7 +304,7 @@
             // txtProxyPort
             // 
             this.txtProxyPort.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtProxyPort.Location = new System.Drawing.Point(207, 3);
+            this.txtProxyPort.Location = new System.Drawing.Point(237, 3);
             this.txtProxyPort.Name = "txtProxyPort";
             this.txtProxyPort.Size = new System.Drawing.Size(38, 21);
             this.txtProxyPort.TabIndex = 10;
@@ -314,7 +314,7 @@
             // txtProxyHost
             // 
             this.txtProxyHost.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtProxyHost.Location = new System.Drawing.Point(47, 3);
+            this.txtProxyHost.Location = new System.Drawing.Point(78, 3);
             this.txtProxyHost.Name = "txtProxyHost";
             this.txtProxyHost.Size = new System.Drawing.Size(148, 21);
             this.txtProxyHost.TabIndex = 9;
@@ -324,7 +324,7 @@
             // 
             this.lblProxyHttp.AutoSize = true;
             this.lblProxyHttp.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblProxyHttp.Location = new System.Drawing.Point(7, 6);
+            this.lblProxyHttp.Location = new System.Drawing.Point(39, 6);
             this.lblProxyHttp.Name = "lblProxyHttp";
             this.lblProxyHttp.Size = new System.Drawing.Size(39, 13);
             this.lblProxyHttp.TabIndex = 7;

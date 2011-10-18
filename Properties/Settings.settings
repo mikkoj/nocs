@@ -68,5 +68,11 @@
     <Setting Name="DefaultSaveFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="ProxyProtocol" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http</Value>
+    </Setting>
+    <Setting Name="PinnedDocuments" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

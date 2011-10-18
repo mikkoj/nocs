@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
+using System.Text;
 using System.Timers;
 using System.Windows.Forms;
 using Google.Documents;
@@ -98,9 +101,18 @@ namespace Nocs.Forms
 
         private void MainFormClosing(object sender, FormClosingEventArgs e)
         {
+            // for pinned documents
+            var pinnedDocuments = new List<string>();
+
             // let's first find out if any of the open tabs are unsaved
             foreach (Noc tab in tabs.TabPages)
             {
+                // let's also collect potential pinned documents
+                if (tab.Pinned)
+                {
+                    pinnedDocuments.Add(tab.Document.ResourceId);
+                }
+
                 if (tab.ContentHasChanged && NocsService.UserIsAuthenticated())
                 {
                     // let's first stop all processing
@@ -165,6 +177,18 @@ namespace Nocs.Forms
             // save all current settings just before closing application
             Settings.Default.WindowLocation = Location;
             Settings.Default.WindowSize = WindowState == FormWindowState.Normal ? Size : RestoreBounds.Size;
+
+            // let's also save pinned documents
+            if (pinnedDocuments.Any())
+            {
+                var pinnedDocumentsJoined = String.Join(";", pinnedDocuments.Where(s => !string.IsNullOrEmpty(s)));
+                Settings.Default.PinnedDocuments = pinnedDocumentsJoined;
+            }
+            else
+            {
+                Settings.Default.PinnedDocuments = string.Empty;
+            }
+
             Settings.Default.Save();
 
             // let's flush the trace content to the file
@@ -181,7 +205,8 @@ namespace Nocs.Forms
         /// and then update the noc.
         /// </summary>
         /// <param name="document">Document to be loaded.</param>
-        void BrowseAddDocumentToMainForm(Document document)
+        /// <param name="pinned">Determines whether document to be added is a pinned document.</param>
+        void BrowseAddDocumentToMainForm(Document document, bool pinned = false)
         {
             // let's first see if the document is already open
             for (var i = 0; i < tabs.TabCount; i++)
@@ -195,14 +220,17 @@ namespace Nocs.Forms
             }
 
             // if there is a single Untitled tab with no content open, let's close it
-            var firstTab = tabs.TabPages[0] as Noc;
-            if (firstTab != null && !firstTab.ContentHasChanged && firstTab.Document.IsDraft)
+            if (tabs.TabCount > 0)
             {
-                CloseTab(0);
+                var firstTab = tabs.TabPages[0] as Noc;
+                if (firstTab != null && !firstTab.ContentHasChanged && firstTab.Document.IsDraft)
+                {
+                    CloseTab(0);
+                }
             }
 
             // let's add an inactive tab with a title to the tabControl
-            AddInactiveNoc(document);
+            AddInactiveNoc(document, pinned);
 
             // let's then fetch the content for the document
 

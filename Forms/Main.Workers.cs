@@ -6,6 +6,7 @@ using Google.Documents;
 
 using Nocs.Helpers;
 using Nocs.Models;
+using Nocs.Properties;
 
 
 namespace Nocs.Forms
@@ -79,6 +80,25 @@ namespace Nocs.Forms
                     menuBrowse.Enabled = true;
                     menuGoogleAccount.Enabled = true;
                     menuSave.Enabled = true;
+                }
+
+                // finally, let's load all documents that have been pinned
+                try
+                {
+                    var pinnedDocuments = Settings.Default.PinnedDocuments.Split(new[] { ';' }).ToList();
+                    pinnedDocuments.ForEach(pinnedDoc =>
+                    {
+                        var documentId = pinnedDoc;
+                        var doc = NocsService.AllDocuments.Single(d => d.Key == documentId).Value;
+                        BrowseAddDocumentToMainForm(doc, true);
+                    });
+                }
+                catch (Exception exParse)
+                {
+                    // probably invalid properties element, let's reset it
+                    Trace.WriteLine(DateTime.Now + "Couldn't parse pinned documents: " + exParse.Message);
+                    Settings.Default.PinnedDocuments = string.Empty;
+                    Settings.Default.Save();
                 }
             }
         }
